@@ -835,6 +835,24 @@ const CSS_TEXT = `
   /* dwell-timer sweep on the Next affordance */
   @keyframes ts-dwell-fill { 0% { width: 0%; } 100% { width: 100%; } }
 
+  /* big +1 POINT burst when a card's read timer completes */
+  @keyframes ts-point-burst {
+    0%   { transform: translate(-50%, -50%) scale(0.3) rotate(-8deg); opacity: 0; }
+    25%  { transform: translate(-50%, -50%) scale(1.25) rotate(3deg); opacity: 1; }
+    45%  { transform: translate(-50%, -50%) scale(1.0) rotate(-1deg); opacity: 1; }
+    75%  { transform: translate(-50%, -85%) scale(1.0); opacity: 1; }
+    100% { transform: translate(-50%, -150%) scale(0.85); opacity: 0; }
+  }
+  @keyframes ts-pip-pop {
+    0% { transform: scale(0.2); }
+    55% { transform: scale(1.5); }
+    100% { transform: scale(1); }
+  }
+  @keyframes ts-points-banner-flash {
+    0%,100% { background: ${u.brandSofter}; }
+    50% { background: ${u.brandSoft}; }
+  }
+
   /* Halftone dot texture used behind comic panels */
   .ts-halftone {
     background-image: radial-gradient(${u.borderLight} 1.4px, transparent 1.5px);
@@ -1228,8 +1246,9 @@ function Button({ onClick, children, variant = "primary", size = "md", disabled,
     primary: { bg: u.brand, color: u.textOnDark, border: u.outline },
     secondary: { bg: u.surface, color: u.text, border: u.outline },
     accent: { bg: u.terra, color: u.textOnDark, border: u.outline },
+    danger: { bg: u.red, color: u.textOnDark, border: u.outline },
     ghost: { bg: "transparent", color: u.text, border: u.outline }
-  }[variant];
+  }[variant] || { bg: u.brand, color: u.textOnDark, border: u.outline };
   const sz = {
     sm: { padding: "8px 14px", fontSize: 13, shadow: U.sm, shadowHover: "2px 2px 0 " + u.outline },
     md: { padding: "12px 24px", fontSize: 16, shadow: U.md, shadowHover: "3px 3px 0 " + u.outline },
@@ -1525,11 +1544,15 @@ function RevealScreen(props) {
   const [dir, setDir] = useState(1);
   const [firstView, setFirstView] = useState(true);
   const [dwellDone, setDwellDone] = useState(false); // has the current card met its read-time gate
+  const [pointBurst, setPointBurst] = useState(0); // increments each time a point is earned (drives the +1 animation)
   const dwellTimer = useRef(null);
+  const burstTimer = useRef(null);
 
   const CARD_COUNT = R.cardMeta.length; // 3
   const DWELL_MS = 2000;
   const scoring = revealCorrect; // only correct answers earn points
+  const earnedCount = seen.filter(Boolean).length;
+  const allEarned = scoring && earnedCount === CARD_COUNT;
   const isQ15Win = revealCorrect && level === he.length - 1 && !isEndless;
   const bonusStreak = isEndless ? Math.max(0, streak - 15) : 0;
 
@@ -1540,16 +1563,20 @@ function RevealScreen(props) {
     dwellTimer.current = setTimeout(() => setDwellDone(true), DWELL_MS);
   };
 
-  // reveal a card (earn point on its dwell completion, not on tap)
+  // reveal a card (earn point on its dwell completion, not on tap).
+  // side effects (parent setState, burst) are kept OUT of the setSeen updater to stay pure.
   const markSeenAndScore = (idx) => {
-    setSeen((prev) => {
-      if (prev[idx]) return prev;
-      const copy = prev.slice();
-      copy[idx] = true;
-      const seenCount = copy.filter(Boolean).length;
-      if (scoring) onEarnCardPoint(seenCount - 1);
-      return copy;
-    });
+    if (seen[idx]) return;
+    const copy = seen.slice();
+    copy[idx] = true;
+    const seenCount = copy.filter(Boolean).length;
+    setSeen(copy);
+    if (scoring) {
+      onEarnCardPoint(seenCount - 1);
+      setPointBurst((n) => n + 1); // trigger the visible +1 POINT burst
+      if (burstTimer.current) clearTimeout(burstTimer.current);
+      burstTimer.current = setTimeout(() => setPointBurst(0), 1200);
+    }
   };
 
   // when a card's dwell completes, score it (if first view)
@@ -1577,7 +1604,7 @@ function RevealScreen(props) {
     else { if (onRevisitSound) onRevisitSound(); setDwellDone(true); }
   };
 
-  useEffect(() => () => { if (dwellTimer.current) clearTimeout(dwellTimer.current); }, []);
+  useEffect(() => () => { if (dwellTimer.current) clearTimeout(dwellTimer.current); if (burstTimer.current) clearTimeout(burstTimer.current); }, []);
 
   const allSeen = seen.every(Boolean);
   const meta = R.cardMeta[current];
@@ -1589,7 +1616,7 @@ function RevealScreen(props) {
   if (step === "verdict") {
     return c.jsxs("div", {
       className: "ts-reveal-screen",
-      style: { minHeight: "100vh", height: "100vh", maxHeight: "100vh", background: revealCorrect ? "#eaf3ea" : "#f6e3dc", display: "flex", flexDirection: "column", padding: "14px 18px 18px", boxSizing: "border-box", overflow: "hidden" },
+      style: { minHeight: "100vh", height: "100vh", maxHeight: "100vh", background: u.bg, display: "flex", flexDirection: "column", padding: "14px 18px 18px", boxSizing: "border-box", overflow: "hidden" },
       children: [
         c.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }, children: [
           c.jsx(Button, { onClick: onHome, variant: "secondary", size: "sm", style: { fontSize: 12 }, children: R.homeButton }),
@@ -1597,33 +1624,35 @@ function RevealScreen(props) {
           c.jsx("button", { onClick: () => setMuted((m) => !m), "aria-label": muted ? "Unmute" : "Mute", className: "ts-sound-btn", style: { background: muted ? "transparent" : u.surface, border: `2px solid ${u.outline}`, color: muted ? u.textMuted : u.text, padding: "6px 10px", borderRadius: 6, cursor: "pointer", fontFamily: C.mono, fontSize: 10, letterSpacing: 1.5, fontWeight: 700 }, children: muted ? "OFF" : "ON" })
         ] }),
 
-        c.jsxs("div", { style: { flex: 1, minHeight: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 22, textAlign: "center", maxWidth: 620, margin: "0 auto", width: "100%" }, children: [
-          // the stamp
-          c.jsxs("div", { style: { position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }, children: [
-            c.jsx("div", { "aria-hidden": true, style: { position: "absolute", width: 200, height: 200, borderRadius: "50%", border: `6px solid ${revealCorrect ? u.green : u.red}`, animation: "ts-verdict-ring 0.7s ease-out forwards" } }),
-            c.jsx("div", { className: "ts-pow", style: { fontFamily: C.display, fontSize: "clamp(52px, 12vw, 96px)", color: u.textOnDark, background: revealCorrect ? u.green : u.red, border: `4px solid ${u.outline}`, borderRadius: 14, padding: "10px 34px", letterSpacing: 2, transform: "rotate(-2deg)", boxShadow: U.xl, animation: "ts-verdict-stamp 0.6s cubic-bezier(.2,.8,.2,1.4) both" }, children: revealCorrect ? "CORRECT!" : "WRONG!" })
+        c.jsxs("div", { style: { flex: 1, minHeight: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 20, textAlign: "center", maxWidth: 560, margin: "0 auto", width: "100%" }, children: [
+          // simple result label with a small colored bar, no big stamp
+          c.jsxs("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: 10, animation: "ts-fade-in 0.3s ease-out" }, children: [
+            c.jsx("div", { style: { width: 54, height: 6, borderRadius: 3, background: revealCorrect ? u.green : u.red } }),
+            c.jsx("div", { style: { fontFamily: C.display, fontSize: "clamp(38px, 8vw, 64px)", lineHeight: 1, letterSpacing: 1, color: revealCorrect ? u.green : u.red }, children: revealCorrect ? "CORRECT" : "NOT QUITE" })
           ] }),
 
-          // your pick vs correct
-          c.jsxs("div", { style: { width: "100%", display: "flex", flexDirection: "column", gap: 12, animation: "ts-verdict-detail-in 0.5s ease-out 0.35s both" }, children: [
-            !revealCorrect && yourLetter != null && c.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 12, background: u.terraSoft, border: `2px solid ${u.outline}`, borderRadius: 10, padding: "12px 16px", textAlign: "left" }, children: [
-              c.jsx("span", { style: { fontFamily: C.mono, fontSize: 10, letterSpacing: 1.5, color: u.red, fontWeight: 700, textTransform: "uppercase", flexShrink: 0 }, children: "You picked" }),
-              c.jsxs("span", { style: { fontFamily: C.display, color: u.red, fontSize: 18, flexShrink: 0 }, children: [yourLetter, "."] }),
-              c.jsx("span", { style: { fontFamily: C.body, fontSize: 15, fontWeight: 600, color: u.text }, children: question.options[selectedIdx] })
+          // your pick (only shown when wrong) and the correct answer
+          c.jsxs("div", { style: { width: "100%", display: "flex", flexDirection: "column", gap: 10, animation: "ts-fade-in 0.4s ease-out" }, children: [
+            !revealCorrect && yourLetter != null && c.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 12, background: u.surface, border: `2px solid ${u.borderLight}`, borderRadius: 10, padding: "12px 16px", textAlign: "left" }, children: [
+              c.jsx("span", { style: { fontFamily: C.mono, fontSize: 10, letterSpacing: 1.5, color: u.textMuted, fontWeight: 700, textTransform: "uppercase", flexShrink: 0 }, children: "You picked" }),
+              c.jsxs("span", { style: { fontFamily: C.display, color: u.textMuted, fontSize: 17, flexShrink: 0 }, children: [yourLetter, "."] }),
+              c.jsx("span", { style: { fontFamily: C.body, fontSize: 15, fontWeight: 600, color: u.textDim }, children: question.options[selectedIdx] })
             ] }),
             c.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 12, background: u.brandSoft, border: `2px solid ${u.outline}`, borderRadius: 10, padding: "12px 16px", textAlign: "left" }, children: [
-              c.jsx("span", { style: { fontFamily: C.mono, fontSize: 10, letterSpacing: 1.5, color: u.brand, fontWeight: 700, textTransform: "uppercase", flexShrink: 0 }, children: revealCorrect ? "Nailed it" : "Answer" }),
-              c.jsxs("span", { style: { fontFamily: C.display, color: u.brand, fontSize: 18, flexShrink: 0 }, children: [rightLetter, "."] }),
+              c.jsx("span", { style: { fontFamily: C.mono, fontSize: 10, letterSpacing: 1.5, color: u.brand, fontWeight: 700, textTransform: "uppercase", flexShrink: 0 }, children: revealCorrect ? "Your answer" : "Correct answer" }),
+              c.jsxs("span", { style: { fontFamily: C.display, color: u.brand, fontSize: 17, flexShrink: 0 }, children: [rightLetter, "."] }),
               c.jsx("span", { style: { fontFamily: C.body, fontSize: 15, fontWeight: 600, color: u.text }, children: question.options[question.correct] })
             ] })
           ] })
         ] }),
 
-        c.jsx("div", { style: { flexShrink: 0, display: "flex", justifyContent: "center", animation: "ts-verdict-detail-in 0.5s ease-out 0.6s both" }, children:
-          c.jsx("button", { onClick: enterCards, style: { fontFamily: C.display, fontSize: 17, letterSpacing: 2, background: u.brand, color: u.textOnDark, border: `2px solid ${u.outline}`, padding: "14px 34px", borderRadius: 10, cursor: "pointer", textTransform: "uppercase", boxShadow: U.md, animation: "ts-pulse-next 1.8s ease-in-out infinite" }, children: revealCorrect ? R.verdictContinue : R.verdictContinueWrong })
-        }),
-
-        revealCorrect && c.jsx(Confetti, { intensity: "low" })
+        c.jsxs("div", { style: { flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }, children: [
+          revealCorrect && c.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8, background: u.brandSofter, border: `2px solid ${u.outline}`, borderRadius: 20, padding: "7px 16px", fontFamily: C.mono, fontSize: 11, letterSpacing: 0.5, color: u.brandDeep, fontWeight: 700 }, children: [
+            c.jsx("span", { style: { fontFamily: C.display, fontSize: 15, color: u.brand }, children: "\u2605\u2605\u2605" }),
+            c.jsx("span", { children: "3 info cards ahead \u00B7 read each to earn a point" })
+          ] }),
+          c.jsx("button", { onClick: enterCards, style: { fontFamily: C.display, fontSize: 16, letterSpacing: 2, background: u.brand, color: u.textOnDark, border: `2px solid ${u.outline}`, padding: "13px 32px", borderRadius: 10, cursor: "pointer", textTransform: "uppercase", boxShadow: U.md }, children: revealCorrect ? R.verdictContinue : R.verdictContinueWrong })
+        ] })
       ]
     });
   }
@@ -1643,18 +1672,26 @@ function RevealScreen(props) {
       // top bar
       c.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexShrink: 0, marginBottom: 8 }, children: [
         c.jsx(Button, { onClick: onHome, variant: "secondary", size: "sm", style: { fontSize: 12 }, children: R.homeButton }),
-        c.jsxs("div", { style: { flex: 1, display: "flex", justifyContent: "center", alignItems: "center", gap: 14, flexWrap: "wrap" }, children: [
-          scoring && c.jsx(PointsMeter, { points, earnedThisQuestion: seen.filter(Boolean).length }),
-          !scoring && c.jsx("div", { style: { fontFamily: C.mono, fontSize: 11, letterSpacing: 1.5, color: u.terra, fontWeight: 700, textTransform: "uppercase" }, children: "Review \u00B7 no points on a miss" })
-        ] }),
+        c.jsx("div", { style: { fontFamily: C.mono, fontSize: 10, letterSpacing: 2, color: u.textMuted, fontWeight: 700, textTransform: "uppercase" }, children: isEndless ? `Bonus Q${level + 1}` : `Q ${String(level + 1).padStart(2, "0")} / 15` }),
         c.jsx("button", { onClick: () => setMuted((m) => !m), "aria-label": muted ? "Unmute" : "Mute", className: "ts-sound-btn", style: { background: muted ? "transparent" : u.surface, border: `2px solid ${u.outline}`, color: muted ? u.textMuted : u.text, padding: "6px 10px", borderRadius: 6, cursor: "pointer", fontFamily: C.mono, fontSize: 10, letterSpacing: 1.5, fontWeight: 700 }, children: muted ? "OFF" : "ON" })
       ] }),
 
-      // the single comic card
-      c.jsx("div", { style: { flex: 1, minHeight: 0, display: "flex", flexDirection: "column", maxWidth: 760, margin: "0 auto", width: "100%" }, children: c.jsx(ComicCard, {
-        cardIndex: current, meta, dir, firstView, question, revealCorrect,
-        selectedIdx, rightLetter
-      }, "card-" + current + "-" + (firstView ? "f" : "s")) }),
+      // prominent points banner: tells the player what's happening and why it matters
+      scoring
+        ? c.jsx(PointsBanner, { earnedThisQuestion: earnedCount, totalPoints: points, allEarned })
+        : c.jsx("div", { style: { flexShrink: 0, textAlign: "center", background: u.surfaceWarm, border: `2px solid ${u.borderLight}`, borderRadius: 10, padding: "8px 14px", marginBottom: 8, fontFamily: C.mono, fontSize: 11, letterSpacing: 1, color: u.textMuted, fontWeight: 700, textTransform: "uppercase" }, children: "Review only \u00B7 points are earned on correct answers" }),
+
+      // the single comic card (with the +1 POINT burst overlaid, centered)
+      c.jsxs("div", { style: { flex: 1, minHeight: 0, display: "flex", flexDirection: "column", maxWidth: 760, margin: "0 auto", width: "100%", position: "relative" }, children: [
+        c.jsx(ComicCard, {
+          cardIndex: current, meta, dir, firstView, question, revealCorrect,
+          selectedIdx, rightLetter
+        }, "card-" + current + "-" + (firstView ? "f" : "s")),
+        pointBurst > 0 && c.jsxs("div", { "aria-hidden": true, style: { position: "absolute", left: "50%", top: "42%", transform: "translate(-50%, -50%)", zIndex: 20, pointerEvents: "none", textAlign: "center", animation: "ts-point-burst 1.2s cubic-bezier(.2,.8,.2,1.1) forwards" }, children: [
+          c.jsx("div", { style: { fontFamily: C.display, fontSize: "clamp(48px, 11vw, 92px)", color: u.brand, textShadow: `4px 4px 0 ${u.outline}`, lineHeight: 0.9 }, children: "+1" }),
+          c.jsx("div", { style: { fontFamily: C.display, fontSize: "clamp(16px, 3.5vw, 26px)", letterSpacing: 3, color: u.brandDeep, marginTop: 2 }, children: allEarned ? "POINT \u00B7 ALL 3!" : "POINT" })
+        ] })
+      ] }),
 
       // dots + nav
       c.jsxs("div", { style: { flexShrink: 0, paddingTop: 8, display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }, children: [
@@ -1666,8 +1703,8 @@ function RevealScreen(props) {
         c.jsxs("div", { style: { display: "flex", gap: 10, alignItems: "center", justifyContent: "center", flexWrap: "wrap" }, children: [
           c.jsx(Button, { onClick: () => go(current - 1), variant: "ghost", size: "sm", disabled: current === 0, style: { fontSize: 13 }, children: "\u2039 Prev" }),
           current < CARD_COUNT - 1
-            ? c.jsx(NextCardButton, { canAdvance: canAdvanceCard, onClick: () => go(current + 1) })
-            : (allSeen ? finalBtn : c.jsx(NextCardButton, { canAdvance: canAdvanceCard, label: "Almost\u2026", onClick: () => {} }))
+            ? c.jsx(NextCardButton, { canAdvance: canAdvanceCard, scoring, onClick: () => go(current + 1) })
+            : (allSeen ? finalBtn : c.jsx(NextCardButton, { canAdvance: canAdvanceCard, scoring, label: "Almost\u2026", onClick: () => {} }))
         ] }),
 
         !allSeen && c.jsx("button", { onClick: onSkipReview, style: { background: "transparent", border: "none", fontFamily: C.mono, fontSize: 11, letterSpacing: 2, color: u.textMuted, cursor: "pointer", textTransform: "uppercase", fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 3, padding: "2px 10px" }, children: scoring ? "Skip Review (no points) \u2192" : "Skip \u2192" })
@@ -1679,23 +1716,45 @@ function RevealScreen(props) {
 }
 
 // Next-card button that shows a filling dwell bar until the read gate clears
-function NextCardButton({ canAdvance, onClick, label }) {
+function NextCardButton({ canAdvance, onClick, label, scoring }) {
   return c.jsxs("button", {
     onClick: canAdvance ? onClick : undefined,
     disabled: !canAdvance,
-    style: { position: "relative", overflow: "hidden", fontFamily: C.display, fontSize: 13, letterSpacing: 1.5, background: canAdvance ? u.surface : u.surfaceWarm, color: canAdvance ? u.text : u.textMuted, border: `2px solid ${u.outline}`, padding: "10px 22px", borderRadius: 8, cursor: canAdvance ? "pointer" : "default", textTransform: "uppercase", boxShadow: canAdvance ? U.sm : "none", minWidth: 120 },
+    style: { position: "relative", overflow: "hidden", fontFamily: C.display, fontSize: 13, letterSpacing: 1.5, background: canAdvance ? u.surface : u.surfaceWarm, color: canAdvance ? u.text : u.textMuted, border: `2px solid ${u.outline}`, padding: "10px 22px", borderRadius: 8, cursor: canAdvance ? "pointer" : "default", textTransform: "uppercase", boxShadow: canAdvance ? U.sm : "none", minWidth: 140 },
     children: [
       !canAdvance && c.jsx("span", { "aria-hidden": true, style: { position: "absolute", left: 0, top: 0, bottom: 0, background: u.brandSofter, animation: "ts-dwell-fill 2s linear forwards", zIndex: 0 } }),
-      c.jsx("span", { style: { position: "relative", zIndex: 1 }, children: canAdvance ? (label || "Next \u203A") : "Reading\u2026" })
+      c.jsx("span", { style: { position: "relative", zIndex: 1 }, children: canAdvance ? (label || "Next \u203A") : (scoring ? "Reading\u2026 +1 soon" : "Reading\u2026") })
     ]
   });
 }
 
-function PointsMeter({ points, earnedThisQuestion = 0 }) {
-  return c.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8, background: u.surfaceWarm, border: `2px solid ${u.outline}`, borderRadius: 20, padding: "5px 14px 5px 8px", boxShadow: U.sm }, children: [
-    c.jsx("div", { style: { display: "flex", gap: 3 }, children: [0, 1, 2].map((r) => c.jsx("div", { style: { width: 8, height: 8, borderRadius: "50%", background: r < earnedThisQuestion ? u.brand : u.borderLight, border: `1px solid ${u.outline}`, transition: "background 0.3s" } }, r)) }),
-    c.jsxs("div", { style: { fontFamily: C.display, fontSize: 16, color: u.text, letterSpacing: 0, lineHeight: 1 }, children: [points, " ", c.jsx("span", { style: { fontFamily: C.mono, fontSize: 9, letterSpacing: 2, color: u.textMuted, fontWeight: 700 }, children: "PTS" })] })
-  ] });
+// Bold, self-explaining points banner shown above the review cards.
+// Makes the "read 3 cards -> earn 3 points -> spend on lifelines" loop obvious.
+function PointsBanner({ earnedThisQuestion = 0, totalPoints = 0, allEarned = false }) {
+  return c.jsxs("div", {
+    style: { flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", background: allEarned ? u.brandSoft : u.brandSofter, border: `2px solid ${u.outline}`, borderRadius: 12, padding: "10px 16px", marginBottom: 8, boxShadow: U.sm, animation: allEarned ? "ts-points-banner-flash 0.8s ease-in-out" : "none" },
+    children: [
+      // left: the 3 read-slots filling in
+      c.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 10 }, children: [
+        c.jsx("div", { style: { display: "flex", gap: 6 }, children: [0, 1, 2].map((r) => {
+          const filled = r < earnedThisQuestion;
+          return c.jsx("div", { style: { width: 22, height: 22, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: filled ? u.brand : u.surface, border: `2px solid ${u.outline}`, color: u.textOnDark, fontFamily: C.display, fontSize: 12, animation: filled && r === earnedThisQuestion - 1 ? "ts-pip-pop 0.4s ease-out" : "none" }, children: filled ? "\u2605" : "" }, r);
+        }) }),
+        c.jsxs("div", { style: { fontFamily: C.display, fontSize: 15, letterSpacing: 0.5, color: u.text, lineHeight: 1 }, children: [
+          allEarned ? "ALL 3 CARDS READ" : `${earnedThisQuestion} / 3 CARDS READ`,
+          c.jsx("div", { style: { fontFamily: C.mono, fontSize: 9, letterSpacing: 1, color: u.brandDeep, fontWeight: 700, marginTop: 3, textTransform: "uppercase" }, children: allEarned ? "You earned 3 points" : "Read a card = +1 point" })
+        ] })
+      ] }),
+      // right: running total + what points are for
+      c.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8, background: u.surfaceHigh, border: `2px solid ${u.outline}`, borderRadius: 10, padding: "6px 12px" }, children: [
+        c.jsx("div", { style: { fontFamily: C.display, fontSize: 24, color: u.brand, lineHeight: 1 }, children: totalPoints }),
+        c.jsxs("div", { style: { textAlign: "left", lineHeight: 1.1 }, children: [
+          c.jsx("div", { style: { fontFamily: C.mono, fontSize: 10, letterSpacing: 1.5, color: u.text, fontWeight: 700 }, children: "POINTS" }),
+          c.jsx("div", { style: { fontFamily: C.mono, fontSize: 8, letterSpacing: 0.5, color: u.textMuted, fontWeight: 700, textTransform: "uppercase" }, children: "Buy back lifelines" })
+        ] })
+      ] })
+    ]
+  });
 }
 
 // ---------- the single comic card, four faces ----------
