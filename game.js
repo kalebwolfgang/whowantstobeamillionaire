@@ -203,8 +203,8 @@ const R = {
     { key: "ladder", type: "ladder", title: "THE LADDER", body: "Each question is worth more than the last. Get all 15 right and you win it all." },
     { key: "questions", type: "questions", title: "THE QUESTIONS", body: "Four choices per question. Pick one, lock it in. Miss one and the game ends." },
     { key: "cards", type: "cards", title: "REVIEW CARDS", body: "After you answer, you find out if you were right, then three cards flip up one at a time: the law behind it, a phrase to remember, and how it plays out in real life. Take a few seconds with each one." },
-    { key: "points", type: "points", title: "POINTS", body: "Each review card you read earns a point, up to three per question. Points let you buy back lifelines after you have used them, so reading pays off when you get stuck later." },
-    { key: "fifty", type: "lifeline", lifelineKey: "fifty", title: "50/50", body: "Two of the wrong answers get crossed off, leaving you with the correct one and one other choice. Best when you can narrow it down to two guesses." },
+    { key: "points", type: "points", title: "POINTS", body: "Each review card you read earns a point, up to three per question. Open the Lifelines button during a question to spend points buying back lifelines you have used, so reading pays off when you get stuck later." },
+    { key: "fifty", type: "lifeline", lifelineKey: "fifty", title: "50/50", body: "Your three lifelines live behind the Lifelines button on the question screen. The first, 50/50, crosses off two wrong answers, leaving the correct one and one other choice. Best when you can narrow it down to two guesses." },
     { key: "jury", type: "lifeline", lifelineKey: "poll", title: "JURY", body: "A panel of other students voted on this question. You see what percentage picked each answer. The crowd is usually right, but not always. Trust it more when the top answer is way ahead." },
     { key: "counsel", type: "lifeline", lifelineKey: "hint", title: "COUNSEL", body: "A lawyer gives you a hint about the question. It won't give away the answer, but it will point you in the right direction. Save this one for when you're truly stuck." },
     { key: "ready", type: "ready", title: "LET'S GO", body: "Fifteen questions. Three lifelines. No do-overs." }
@@ -940,6 +940,7 @@ function App() {
   const [juryResults, setJuryResults] = useState(null);
   const [hintShown, setHintShown] = useState(false);
   const [pendingLifeline, setPendingLifeline] = useState(null);
+  const [shopOpen, setShopOpen] = useState(false);
   const [homeConfirm, setHomeConfirm] = useState(false);
   const [skipConfirm, setSkipConfirm] = useState(false);
   const [skipConfirmed, setSkipConfirmed] = useState(false);
@@ -1008,7 +1009,7 @@ function App() {
     setRevealCorrect(false); setRevealWrong(false); setShowFloating(false);
     setStreak(0); setLifelines({ fifty: true, poll: true, hint: true });
     setRemovedAnswers([]); setJuryResults(null); setHintShown(false);
-    setPendingLifeline(null); setHomeConfirm(false); setSkipConfirm(false);
+    setPendingLifeline(null); setShopOpen(false); setHomeConfirm(false); setSkipConfirm(false);
     setPoints(0); setIsEndless(false); setFinalPrize(0);
   };
 
@@ -1104,7 +1105,9 @@ function App() {
     setPhase("playing");
   };
 
-  const requestLifeline = (k) => { if (phase !== "playing") return; sfx.current.modalOpen(); setPendingLifeline(k); };
+  const openShop = () => { if (phase !== "playing") return; sfx.current.modalOpen(); setShopOpen(true); };
+  const closeShop = () => { sfx.current.click(); setShopOpen(false); };
+  const requestLifeline = (k) => { if (phase !== "playing") return; setShopOpen(false); sfx.current.modalOpen(); setPendingLifeline(k); };
   const cancelLifeline = () => { sfx.current.click(); setPendingLifeline(null); };
 
   const applyLifeline = (k) => {
@@ -1210,7 +1213,11 @@ function App() {
       locked, revealCorrect, revealWrong, showFloating, phase, removedAnswers, juryResults,
       hintShown, lifelines, muted, setMuted, isEndless, points,
       onSelect, onLockIn, onNext: advance, onHome: askHome, onRequestLifeline: requestLifeline,
-      onEnterEndless: enterEndless
+      onOpenShop: openShop, onEnterEndless: enterEndless
+    }),
+    shopOpen && c.jsx(ShopPanel, {
+      lifelines, points, prices: La,
+      onPick: requestLifeline, onClose: closeShop
     }),
     pendingLifeline && c.jsx(LifelineModal, {
       lifelineKey: pendingLifeline,
@@ -1378,7 +1385,7 @@ function QuestionScreen(props) {
   const { question, level, rung, difficulty, stage, streak, selectedIdx, locked, revealCorrect,
     revealWrong, showFloating, phase, removedAnswers, juryResults, hintShown, lifelines, muted,
     setMuted, isEndless, points, onSelect, onLockIn, onNext, onHome, onRequestLifeline,
-    onEnterEndless } = props;
+    onOpenShop, onEnterEndless } = props;
   const bonusStreak = isEndless ? Math.max(0, streak - 15) : 0;
   return c.jsxs("div", {
     style: { maxWidth: 1280, margin: "0 auto", padding: "24px 24px 24px", display: "flex", gap: 28, alignItems: "flex-start", minHeight: "100vh", boxSizing: "border-box" },
@@ -1421,11 +1428,9 @@ function QuestionScreen(props) {
           removed: removedAnswers.includes(i), juryPct: juryResults ? juryResults[i] : null, stage, onClick: () => onSelect(i)
         }, i)) }),
         c.jsxs("div", { className: "ts-action-bar", style: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: 14, flexWrap: "wrap" }, children: [
-          c.jsxs("div", { className: "ts-lifelines-row", style: { display: "flex", gap: 10 }, children: [
-            c.jsx(LifelinePill, { label: R.lifelines.fifty.label, available: lifelines.fifty, price: La.fifty, points, disabled: locked, onClick: () => onRequestLifeline("fifty") }),
-            c.jsx(LifelinePill, { label: R.lifelines.poll.label, available: lifelines.poll, price: La.poll, points, disabled: locked, onClick: () => onRequestLifeline("poll") }),
-            c.jsx(LifelinePill, { label: R.lifelines.hint.label, available: lifelines.hint, price: La.hint, points, disabled: locked, onClick: () => onRequestLifeline("hint") })
-          ] }),
+          c.jsx("div", { className: "ts-lifelines-row", style: { display: "flex", gap: 10 }, children:
+            c.jsx(ShopButton, { lifelines, points, disabled: locked, onClick: onOpenShop })
+          }),
           c.jsx("div", { className: "ts-action-bar-right", style: { display: "flex", gap: 12 }, children: c.jsx(Button, { variant: "primary", size: "md", disabled: selectedIdx === null || locked, onClick: onLockIn, children: "Lock It In" }) })
         ] })
       ] }),
@@ -1467,36 +1472,71 @@ function AnswerButton(props) {
   });
 }
 
-function LifelinePill({ label, available, price, points, disabled, onClick }) {
+// The single action-bar button that opens the lifeline shop.
+// Shows how many lifelines are ready and the current point balance.
+function ShopButton({ lifelines, points, disabled, onClick }) {
   const [hover, setHover] = useState(false);
-  // three logical states: fresh (available), buyable (used but affordable), locked (used, too few points)
-  const affordable = points >= price;
-  const buyable = !available && affordable;
-  const lockedOut = !available && !affordable;
-  // clickable if not disabled AND (fresh or buyable)
-  const clickable = !disabled && (available || buyable);
+  const ready = Object.values(lifelines).filter(Boolean).length;
   const off = disabled;
-
-  let bg, border, color, opacity = 1, deco = "none";
-  if (available) { bg = u.surface; border = u.outline; color = u.brand; }
-  else if (buyable) { bg = u.brandSoft; border = u.brand; color = u.brandDeep; } // stands out: you can rebuy
-  else { bg = u.surfaceWarm; border = u.borderLight; color = u.textMuted; opacity = 0.7; deco = "line-through"; }
-  if (off) opacity = 0.45;
-
-  const shadow = off || lockedOut ? "none" : hover && clickable ? "2px 2px 0 " + u.outline : buyable ? U.md : U.sm;
-  const transform = off ? "none" : hover && clickable ? "translate(2px, 2px)" : "translate(0, 0)";
-
+  const shadow = off ? "none" : hover ? "2px 2px 0 " + u.outline : U.md;
+  const transform = off ? "none" : hover ? "translate(2px, 2px)" : "translate(0, 0)";
   return c.jsxs("button", {
-    onClick: clickable ? onClick : undefined, disabled: off,
+    onClick: off ? undefined : onClick, disabled: off,
     onMouseEnter: () => setHover(true), onMouseLeave: () => setHover(false),
     className: "ts-lifeline-btn",
-    style: { position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 2, background: bg, border: `2px solid ${border}`, padding: "8px 16px", borderRadius: 18, cursor: clickable ? "pointer" : "not-allowed", fontFamily: C.display, fontSize: 16, letterSpacing: 1.5, color, opacity, textAlign: "center", minWidth: 88, boxShadow: shadow, transform, transition: "box-shadow 0.1s, transform 0.1s, background 0.2s, border-color 0.2s", animation: buyable ? "ts-ladder-light 1.8s ease-in-out infinite" : "none" },
+    style: { position: "relative", display: "flex", alignItems: "center", gap: 10, background: u.surface, border: `2px solid ${u.outline}`, padding: "9px 16px", borderRadius: 12, cursor: off ? "not-allowed" : "pointer", opacity: off ? 0.5 : 1, boxShadow: shadow, transform, transition: "box-shadow 0.1s, transform 0.1s" },
     children: [
-      c.jsx("span", { style: { textDecoration: deco, lineHeight: 1 }, children: label }),
-      // sub-label: fresh shows nothing extra; used shows the buy price and affordability
-      !available && c.jsxs("span", { style: { fontFamily: C.mono, fontSize: 9, letterSpacing: 0.5, fontWeight: 700, color: buyable ? u.brandDeep : u.textMuted, textDecoration: "none" }, children: [buyable ? "BUY " : "NEED ", price, " PTS"] })
+      c.jsx("span", { style: { fontFamily: C.display, fontSize: 16, letterSpacing: 1.5, color: u.brand }, children: "LIFELINES" }),
+      c.jsxs("span", { style: { display: "flex", alignItems: "center", gap: 6 }, children: [
+        c.jsxs("span", { style: { fontFamily: C.mono, fontSize: 10, fontWeight: 700, letterSpacing: 0.5, color: u.textMuted, textTransform: "uppercase" }, children: [ready, " ready"] }),
+        c.jsx("span", { style: { width: 1, height: 16, background: u.borderLight } }),
+        c.jsxs("span", { style: { fontFamily: C.mono, fontSize: 10, fontWeight: 700, letterSpacing: 0.5, color: u.brand }, children: [points, " PTS"] })
+      ] })
     ]
   });
+}
+
+// The shop panel: all three lifelines with use / buy / locked states, opened from the button.
+function ShopPanel({ lifelines, points, prices, onPick, onClose }) {
+  const order = ["fifty", "poll", "hint"];
+  return c.jsx(Backdrop, { children: c.jsxs("div", {
+    style: { background: u.surfaceHigh, border: `2px solid ${u.outline}`, borderRadius: 14, boxShadow: U.lg, padding: "24px 26px 22px", maxWidth: 460, width: "100%", animation: "ts-modal-in 0.18s ease-out" },
+    children: [
+      c.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }, children: [
+        c.jsx("h3", { style: { fontFamily: C.display, fontSize: 26, letterSpacing: 0, margin: 0, color: u.text }, children: "LIFELINES" }),
+        c.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 6, background: u.brandSoft, border: `2px solid ${u.outline}`, borderRadius: 20, padding: "5px 12px" }, children: [
+          c.jsx("span", { style: { fontFamily: C.display, fontSize: 18, color: u.brand, lineHeight: 1 }, children: points }),
+          c.jsx("span", { style: { fontFamily: C.mono, fontSize: 9, letterSpacing: 1.5, color: u.brandDeep, fontWeight: 700 }, children: "PTS" })
+        ] })
+      ] }),
+      c.jsx("p", { style: { fontFamily: C.body, fontSize: 13, lineHeight: 1.5, color: u.textDim, fontWeight: 500, margin: "0 0 18px" }, children: "Use one for free while you have it. Once used, buy it back with points earned from reading review cards." }),
+      c.jsx("div", { style: { display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }, children: order.map((k) => {
+        const meta = R.lifelines[k];
+        const available = lifelines[k];
+        const price = prices[k];
+        const affordable = points >= price;
+        const buyable = !available && affordable;
+        const clickable = available || buyable;
+        let stateLabel, stateColor, actionText;
+        if (available) { stateLabel = "Ready"; stateColor = u.green; actionText = "Use"; }
+        else if (buyable) { stateLabel = `Buy back for ${price} pts`; stateColor = u.brand; actionText = `Buy ${price}`; }
+        else { stateLabel = `Used \u00B7 need ${price} pts`; stateColor = u.textMuted; actionText = `${price} pts`; }
+        return c.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 12, background: available ? u.surface : buyable ? u.brandSofter : u.surfaceWarm, border: `2px solid ${clickable ? u.outline : u.borderLight}`, borderRadius: 10, padding: "12px 14px", opacity: clickable ? 1 : 0.72 }, children: [
+          c.jsxs("div", { style: { flex: 1, minWidth: 0 }, children: [
+            c.jsx("div", { style: { fontFamily: C.display, fontSize: 17, letterSpacing: 1, color: clickable ? u.text : u.textMuted }, children: meta.label }),
+            c.jsx("div", { style: { fontFamily: C.body, fontSize: 12.5, lineHeight: 1.4, color: u.textDim, fontWeight: 500, marginTop: 2 }, children: meta.shortDesc }),
+            c.jsx("div", { style: { fontFamily: C.mono, fontSize: 9.5, letterSpacing: 0.5, fontWeight: 700, color: stateColor, textTransform: "uppercase", marginTop: 4 }, children: stateLabel })
+          ] }),
+          c.jsx("button", {
+            onClick: clickable ? () => onPick(k) : undefined, disabled: !clickable,
+            style: { flexShrink: 0, fontFamily: C.display, fontSize: 13, letterSpacing: 1, background: clickable ? u.brand : u.surfaceWarm, color: clickable ? u.textOnDark : u.textMuted, border: `2px solid ${clickable ? u.outline : u.borderLight}`, borderRadius: 8, padding: "9px 16px", cursor: clickable ? "pointer" : "not-allowed", textTransform: "uppercase", boxShadow: clickable ? U.sm : "none", minWidth: 72 },
+            children: actionText
+          })
+        ] }, k);
+      }) }),
+      c.jsx("div", { style: { display: "flex", justifyContent: "flex-end" }, children: c.jsx(Button, { onClick: onClose, variant: "ghost", size: "sm", style: { fontSize: 14 }, children: "Close" }) })
+    ]
+  }) });
 }
 
 function Ladder({ currentLevel, isEndless, bonusStreak }) {
