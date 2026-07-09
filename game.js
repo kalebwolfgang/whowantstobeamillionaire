@@ -350,7 +350,7 @@ const R = {
   },
   playLabel: "Play",
   walkthrough: [
-    { key: "safety", type: "safety", title: "READ THIS FIRST", body: "This game teaches your legal rights so you never face a police or ICE encounter with no idea what to do. But knowing a right and safely using it are different things. Sometimes your rights will be violated, and the street is not the place to make that point. Your number one goal is to get home safe. Stay calm, keep your hands visible, follow instructions, and do what you have to do to survive. You fight an unfair stop later, in court, with a lawyer, not in the moment. It is completely fine to get a question wrong here. It is far more dangerous to be in that situation knowing nothing at all." },
+    { key: "safety", type: "safety", title: "READ THIS FIRST", body: "This game teaches your legal rights so you never face a law enforcement encounter with no idea what to do. But knowing a right and safely using it are different things. Sometimes your rights will be violated, and the street is not the place to make that point. Your number one goal is to get home safe. Stay calm, keep your hands visible, follow instructions, and do what you have to do to survive. You fight an unfair stop later, in court, with a lawyer, not in the moment. It is completely fine to get a question wrong here. It is far more dangerous to be in that situation knowing nothing at all." },
     { key: "ladder", type: "ladder", title: "THE LADDER", body: "Each question is worth more than the last. Get all 15 right and you win it all." },
     { key: "questions", type: "questions", title: "THE QUESTIONS", body: "Four choices per question. Pick one, lock it in. Miss one and the game ends." },
     { key: "cards", type: "cards", title: "REVIEW CARDS", body: "After you answer, you find out if you were right, then three cards flip up one at a time: the law behind it, a phrase to remember, and how it plays out in real life. Take a few seconds with each one." },
@@ -1803,6 +1803,7 @@ function RevealScreen(props) {
   const [step, setStep] = useState("verdict"); // "verdict" | "cards"
   const [current, setCurrent] = useState(0);      // which card index 0..2 is showing
   const [seen, setSeen] = useState([false, false, false]);
+  const [claimed, setClaimed] = useState([false, false, false]); // point redeemed per card
   const [dir, setDir] = useState(1);
   const [firstView, setFirstView] = useState(true);
   const [dwellDone, setDwellDone] = useState(false); // has the current card met its read-time gate
@@ -1813,7 +1814,7 @@ function RevealScreen(props) {
   const CARD_COUNT = R.cardMeta.length; // 3
   const DWELL_MS = 2000;
   const scoring = revealCorrect; // only correct answers earn points
-  const earnedCount = seen.filter(Boolean).length;
+  const earnedCount = claimed.filter(Boolean).length; // points actually redeemed
   const allEarned = scoring && earnedCount === CARD_COUNT;
   const isQ15Win = revealCorrect && level === he.length - 1 && !isEndless;
   const bonusStreak = isEndless ? Math.max(0, streak - 15) : 0;
@@ -1825,26 +1826,34 @@ function RevealScreen(props) {
     dwellTimer.current = setTimeout(() => setDwellDone(true), DWELL_MS);
   };
 
-  // reveal a card (earn point on its dwell completion, not on tap).
-  // side effects (parent setState, burst) are kept OUT of the setSeen updater to stay pure.
-  const markSeenAndScore = (idx) => {
+  // dwell only marks the card as READ (unlocks the redeem/next tap). It no
+  // longer awards the point; the player claims that with a deliberate tap.
+  const markSeen = (idx) => {
     if (seen[idx]) return;
     const copy = seen.slice();
     copy[idx] = true;
-    const seenCount = copy.filter(Boolean).length;
     setSeen(copy);
-    if (scoring) {
-      onEarnCardPoint(seenCount - 1);
-      setPointBurst((n) => n + 1); // trigger the visible +1 POINT burst
-      if (burstTimer.current) clearTimeout(burstTimer.current);
-      burstTimer.current = setTimeout(() => setPointBurst(0), 1200);
-    }
   };
 
-  // when a card's dwell completes, score it (if first view)
+  // claim the point for the current card (first tap of the two-tap flow).
+  // returns true if a point was actually redeemed this tap.
+  const claimPoint = (idx) => {
+    if (!scoring || claimed[idx]) return false;
+    const copy = claimed.slice();
+    copy[idx] = true;
+    const claimedCount = copy.filter(Boolean).length;
+    setClaimed(copy);
+    onEarnCardPoint(claimedCount - 1);
+    setPointBurst((n) => n + 1); // trigger the visible +1 POINT burst
+    if (burstTimer.current) clearTimeout(burstTimer.current);
+    burstTimer.current = setTimeout(() => setPointBurst(0), 1200);
+    return true;
+  };
+
+  // when a card's dwell completes, mark it read (if first view)
   useEffect(() => {
     if (step !== "cards") return;
-    if (dwellDone && !seen[current]) markSeenAndScore(current);
+    if (dwellDone && !seen[current]) markSeen(current);
   }, [dwellDone, step]); // eslint-disable-line
 
   // entering the cards step, or moving between cards, (re)start the dwell
@@ -1870,7 +1879,13 @@ function RevealScreen(props) {
 
   const allSeen = seen.every(Boolean);
   const meta = R.cardMeta[current];
-  const canAdvanceCard = seen[current] || dwellDone; // gate Next until read
+  const cardRead = seen[current] || dwellDone; // read-gate: dwell finished
+  // on a scoring run, the current card still owes a point until it's claimed.
+  const owesPoint = scoring && !claimed[current];
+  // the primary button can advance only once the point (if any) is claimed.
+  const canAdvanceCard = cardRead && !owesPoint;
+  // "all done" for the final button also requires every point claimed on a scoring run.
+  const allClaimed = !scoring || claimed.every(Boolean);
   const yourLetter = selectedIdx != null ? ["A", "B", "C", "D"][selectedIdx] : null;
   const rightLetter = ["A", "B", "C", "D"][question.correct];
 
@@ -1965,15 +1980,32 @@ function RevealScreen(props) {
 
         c.jsxs("div", { style: { display: "flex", gap: 10, alignItems: "center", justifyContent: "center", flexWrap: "wrap" }, children: [
           c.jsx(Button, { onClick: () => go(current - 1), variant: "ghost", size: "sm", disabled: current === 0, style: { fontSize: 13 }, children: "\u2039 Prev" }),
-          current < CARD_COUNT - 1
-            ? c.jsx(NextCardButton, { canAdvance: canAdvanceCard, scoring, onClick: () => go(current + 1) })
-            : (allSeen ? finalBtn : c.jsx(NextCardButton, { canAdvance: canAdvanceCard, scoring, label: "Almost\u2026", onClick: () => {} }))
+          // Two-tap flow on a scoring card: first tap redeems the point, second advances.
+          owesPoint
+            ? c.jsx(RedeemButton, { canRedeem: cardRead, onClick: () => claimPoint(current) })
+            : (current < CARD_COUNT - 1
+                ? c.jsx(NextCardButton, { canAdvance: canAdvanceCard, scoring, onClick: () => go(current + 1) })
+                : ((allSeen && allClaimed) ? finalBtn : c.jsx(NextCardButton, { canAdvance: canAdvanceCard, scoring, label: "Almost\u2026", onClick: () => {} })))
         ] }),
 
         !allSeen && c.jsx("button", { onClick: onSkipReview, style: { background: "transparent", border: "none", fontFamily: C.mono, fontSize: 11, letterSpacing: 2, color: u.textMuted, cursor: "pointer", textTransform: "uppercase", fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 3, padding: "2px 10px" }, children: scoring ? "Skip Review (no points) \u2192" : "Skip \u2192" })
       ] }),
 
       revealCorrect && c.jsx(Confetti, { intensity: "med" })
+    ]
+  });
+}
+
+// First tap of the two-tap flow on a scoring card: claim the point.
+// Shows the same read-gate dwell fill, then a bright, pulsing "Redeem +1".
+function RedeemButton({ canRedeem, onClick }) {
+  return c.jsxs("button", {
+    onClick: canRedeem ? onClick : undefined,
+    disabled: !canRedeem,
+    style: { position: "relative", overflow: "hidden", fontFamily: C.display, fontSize: 13, letterSpacing: 1.5, background: canRedeem ? u.brand : u.surfaceWarm, color: canRedeem ? u.textOnDark : u.textMuted, border: `2px solid ${u.outline}`, padding: "10px 22px", borderRadius: 8, cursor: canRedeem ? "pointer" : "default", textTransform: "uppercase", boxShadow: canRedeem ? U.md : "none", minWidth: 140, animation: canRedeem ? "ts-pulse-next 1.6s ease-in-out infinite" : "none" },
+    children: [
+      !canRedeem && c.jsx("span", { "aria-hidden": true, style: { position: "absolute", left: 0, top: 0, bottom: 0, background: u.brandSofter, animation: "ts-dwell-fill 2s linear forwards", zIndex: 0 } }),
+      c.jsx("span", { style: { position: "relative", zIndex: 1 }, children: canRedeem ? "Redeem +1 \u2605" : "Reading\u2026" })
     ]
   });
 }
