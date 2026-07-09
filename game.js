@@ -1063,7 +1063,6 @@ class MusicEngine {
       if (this.stage >= 2 && (this.beat % 16 === 4 || this.beat % 16 === 12)) this.playBrushedSnare();
       if (this.stage >= 3 && this.beat % 2 === 0) this.playRide();
       if (this.stage >= 3) this.playArp();
-      if (this.stage >= 3 && this.beat === 24) this.playHornStab();
       this.beat = (this.beat + 1) % 32;
     };
     const n = 60 / this.bpm / 4 * 1e3;
@@ -1448,12 +1447,15 @@ const CSS_TEXT = `
     .ts-q-header { font-size:18px !important; }
     .ts-q-header-total { font-size:12px !important; }
     .ts-sound-btn { padding:6px 10px !important; font-size:10px !important; }
-    .ts-walk-card { padding:26px 22px 24px !important; }
-    .ts-walk-title { font-size:34px !important; }
+    .ts-walk-screen { padding:12px 14px !important; height:100vh !important; height:100dvh !important; max-height:100dvh !important; overflow:hidden !important; box-sizing:border-box !important; }
+    .ts-walk-card { padding:26px 22px 24px !important; min-height:0 !important; max-height:calc(100dvh - 70px) !important; overflow:hidden !important; }
+    .ts-walk-title { font-size:30px !important; }
     .ts-walk-answer-mini { grid-template-columns:1fr !important; max-width:220px !important; }
     .ts-walk-ladder-mini > div { min-width:160px !important; padding:7px 14px !important; gap:10px !important; }
     .ts-modal-card { padding:22px 22px 20px !important; max-width:100% !important; }
     .ts-modal-card h3 { font-size:22px !important; }
+    .ts-shop-panel { padding:16px 16px 14px !important; max-height:92dvh !important; }
+    .ts-shop-panel p { font-size:12px !important; margin-bottom:10px !important; }
     .ts-end-screen { padding:40px 18px 60px !important; }
     .ts-end-headline { font-size:64px !important; }
     .ts-end-prize { padding:22px 20px !important; min-width:0 !important; width:100% !important; max-width:300px !important; box-sizing:border-box !important; }
@@ -1792,13 +1794,14 @@ function App() {
   const winKeepGoing = () => { sfx.current.click(); enterEndless(); };
 
   const walkNext = () => { sfx.current.click(); if (walkStep < R.walkthrough.length - 1) setWalkStep(walkStep + 1); else startGame(); };
+  const walkPrev = () => { sfx.current.click(); if (walkStep > 0) setWalkStep(walkStep - 1); };
   const walkSkip = () => { sfx.current.click(); startGame(); };
 
   if (phase === "start")
     return c.jsx(Shell, { muted, setMuted, children: c.jsx(StartScreen, { onPlay: goWalkthrough, bestRun }) });
 
   if (phase === "walkthrough")
-    return c.jsx(Shell, { muted, setMuted, children: c.jsx(WalkScreen, { step: walkStep, total: R.walkthrough.length, screen: R.walkthrough[walkStep], onNext: walkNext, onSkip: walkSkip, isLast: walkStep === R.walkthrough.length - 1 }) });
+    return c.jsx(Shell, { muted, setMuted, children: c.jsx(WalkScreen, { step: walkStep, total: R.walkthrough.length, screen: R.walkthrough[walkStep], onNext: walkNext, onPrev: walkPrev, onSkip: walkSkip, isLast: walkStep === R.walkthrough.length - 1, canPrev: walkStep > 0 }) });
 
   if (phase === "winbig")
     return c.jsx(Shell, { muted, setMuted, hideSoundButton: true, children: c.jsx(WinBigScreen, {
@@ -1871,6 +1874,27 @@ function Shell({ children, muted, setMuted, screenFlash, screenShake, hideSoundB
   });
 }
 
+// Inlined Lucide icons (MIT licensed) so lifelines get clean line-icons with no
+// added dependency. Each icon is a list of [tag, attrs] describing the real
+// Lucide artwork, drawn as stroked SVG.
+const LIFE_ICONS = {
+  // fifty (50/50): two split panels ("columns-2")
+  fifty: [["rect", { x: 3, y: 3, width: 18, height: 18, rx: 2 }], ["line", { x1: 12, y1: 3, x2: 12, y2: 21 }]],
+  // poll (JURY): a group of people ("users")
+  poll: [["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" }], ["circle", { cx: 9, cy: 7, r: 4 }], ["path", { d: "M22 21v-2a4 4 0 0 0-3-3.87" }], ["path", { d: "M16 3.13a4 4 0 0 1 0 7.75" }]],
+  // hint (COUNSEL): a lightbulb
+  hint: [["path", { d: "M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" }], ["path", { d: "M9 18h6" }], ["path", { d: "M10 22h4" }]],
+  // shield (SHIELD): a shield with a check
+  shield: [["path", { d: "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" }], ["path", { d: "m9 12 2 2 4-4" }]],
+  // skip (SKIP): skip-forward
+  skip: [["polygon", { points: "5 4 15 12 5 20 5 4" }], ["line", { x1: 19, y1: 5, x2: 19, y2: 19 }]],
+};
+function LifeIcon({ name, size = 22, color = "currentColor" }) {
+  const spec = LIFE_ICONS[name] || [];
+  return c.jsx("svg", { width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: color, strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": true,
+    children: spec.map(([tag, attrs], i) => c.jsx(tag, { ...attrs }, i)) });
+}
+
 function Button({ onClick, children, variant = "primary", size = "md", disabled, style, ...rest }) {
   const [pressed, setPressed] = useState(false);
   const [hover, setHover] = useState(false);
@@ -1918,8 +1942,9 @@ function StartScreen({ onPlay, bestRun }) {
   });
 }
 
-function WalkScreen({ step, total, screen, onNext, onSkip, isLast }) {
+function WalkScreen({ step, total, screen, onNext, onPrev, onSkip, isLast, canPrev }) {
   return c.jsxs("div", {
+    className: "ts-walk-screen",
     style: { minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 24px" },
     children: [
       c.jsxs("div", {
@@ -1932,7 +1957,11 @@ function WalkScreen({ step, total, screen, onNext, onSkip, isLast }) {
             c.jsx("div", { style: { margin: "32px 0 28px", display: "flex", justifyContent: "center" }, children: c.jsx(WalkArt, { screen }) }),
             c.jsx("p", { style: { fontFamily: C.body, fontSize: 16, color: u.textDim, lineHeight: 1.7, fontWeight: 500, margin: "0 auto", maxWidth: 500 }, children: screen.body })
           ] }),
-          c.jsx("div", { style: { marginTop: 30, display: "flex", justifyContent: "center", flexShrink: 0 }, children: c.jsx(Button, { onClick: onNext, variant: "primary", size: "md", children: isLast ? R.walkthroughPlayLabel : R.walkthroughNextLabel }) })
+          // Prev + Next row. Prev is hidden (but space kept) on the first step.
+          c.jsxs("div", { style: { marginTop: 30, display: "flex", justifyContent: "center", alignItems: "center", gap: 12, flexShrink: 0 }, children: [
+            c.jsx(Button, { onClick: canPrev ? onPrev : undefined, variant: "secondary", size: "md", style: { visibility: canPrev ? "visible" : "hidden", pointerEvents: canPrev ? "auto" : "none" }, children: "\u2039 Back" }),
+            c.jsx(Button, { onClick: onNext, variant: "primary", size: "md", children: isLast ? R.walkthroughPlayLabel : R.walkthroughNextLabel })
+          ] })
         ]
       }),
       c.jsxs("button", { onClick: onSkip, "aria-hidden": isLast, tabIndex: isLast ? -1 : 0, style: { marginTop: 24, background: "none", border: "none", fontFamily: C.mono, fontSize: 12, letterSpacing: 1.5, color: u.textMuted, cursor: isLast ? "default" : "pointer", textTransform: "uppercase", fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 4, visibility: isLast ? "hidden" : "visible", pointerEvents: isLast ? "none" : "auto" }, children: [R.walkthroughSkipLabel, " \u2192"] })
@@ -2117,20 +2146,21 @@ function ShopButton({ lifelines, points, shieldArmed, disabled, onClick }) {
   const [hover, setHover] = useState(false);
   const ready = Object.values(lifelines).filter(Boolean).length;
   const off = disabled;
-  const shadow = off ? "none" : hover ? "2px 2px 0 " + u.outline : U.md;
-  const transform = off ? "none" : hover ? "translate(2px, 2px)" : "translate(0, 0)";
+  const shadow = off ? "none" : hover ? "1px 1px 0 " + u.outline : U.md;
+  const transform = off ? "none" : hover ? "translate(1px, 1px)" : "translate(0, 0)";
   return c.jsxs("button", {
     onClick: off ? undefined : onClick, disabled: off,
     onMouseEnter: () => setHover(true), onMouseLeave: () => setHover(false),
     className: "ts-lifeline-btn",
-    style: { position: "relative", display: "flex", alignItems: "center", gap: 10, background: u.surface, border: `2px solid ${u.outline}`, padding: "9px 16px", borderRadius: 12, cursor: off ? "not-allowed" : "pointer", opacity: off ? 0.5 : 1, boxShadow: shadow, transform, transition: "box-shadow 0.1s, transform 0.1s" },
+    style: { position: "relative", display: "flex", alignItems: "center", gap: 10, background: off ? u.surface : u.brand, border: `3px solid ${u.outline}`, padding: "10px 18px", borderRadius: 12, cursor: off ? "not-allowed" : "pointer", opacity: off ? 0.5 : 1, boxShadow: shadow, transform, transition: "box-shadow 0.1s, transform 0.1s" },
     children: [
-      c.jsx("span", { style: { fontFamily: C.display, fontSize: 16, letterSpacing: 1.5, color: u.brand }, children: "LIFELINES" }),
-      shieldArmed && c.jsx("span", { title: "Shield armed", style: { fontFamily: C.mono, fontSize: 10, fontWeight: 700, letterSpacing: 0.5, color: u.green, background: "#e5f0e6", border: `2px solid ${u.green}`, borderRadius: 6, padding: "2px 6px" }, children: "\uD83D\uDEE1 ARMED" }),
-      c.jsxs("span", { style: { display: "flex", alignItems: "center", gap: 6 }, children: [
-        c.jsxs("span", { style: { fontFamily: C.mono, fontSize: 10, fontWeight: 700, letterSpacing: 0.5, color: u.textMuted, textTransform: "uppercase" }, children: [ready, " ready"] }),
-        c.jsx("span", { style: { width: 1, height: 16, background: u.borderLight } }),
-        c.jsxs("span", { style: { fontFamily: C.mono, fontSize: 10, fontWeight: 700, letterSpacing: 0.5, color: u.brand }, children: [points, " PTS"] })
+      c.jsx("span", { style: { display: "flex", alignItems: "center", justifyContent: "center", color: off ? u.brand : u.textOnDark }, children: c.jsx(LifeIcon, { name: "shield", size: 20 }) }),
+      c.jsx("span", { style: { fontFamily: C.display, fontSize: 17, letterSpacing: 1.5, color: off ? u.brand : u.textOnDark }, children: "LIFELINES" }),
+      shieldArmed && c.jsx("span", { title: "Shield armed", style: { display: "flex", alignItems: "center", gap: 4, fontFamily: C.mono, fontSize: 10, fontWeight: 700, letterSpacing: 0.5, color: u.textOnDark, background: u.green, border: `2px solid ${u.outline}`, borderRadius: 6, padding: "2px 7px" }, children: [c.jsx(LifeIcon, { name: "shield", size: 12, color: u.textOnDark }), "ARMED"] }),
+      c.jsxs("span", { style: { display: "flex", alignItems: "center", gap: 7, background: off ? "transparent" : "rgba(255,255,255,0.18)", borderRadius: 8, padding: "3px 9px" }, children: [
+        c.jsxs("span", { style: { fontFamily: C.mono, fontSize: 10, fontWeight: 700, letterSpacing: 0.5, color: off ? u.textMuted : u.textOnDark, textTransform: "uppercase" }, children: [ready, " ready"] }),
+        c.jsx("span", { style: { width: 1, height: 14, background: off ? u.borderLight : "rgba(255,255,255,0.4)" } }),
+        c.jsxs("span", { style: { fontFamily: C.mono, fontSize: 10, fontWeight: 700, letterSpacing: 0.5, color: off ? u.brand : u.textOnDark }, children: [points, " PTS"] })
       ] })
     ]
   });
@@ -2141,7 +2171,8 @@ function ShopPanel({ lifelines, points, prices, shieldArmed, onPick, onClose }) 
   const order = ["fifty", "poll", "hint", "shield", "skip"];
   const purchaseOnly = { shield: true, skip: true }; // never start free; always cost points
   return c.jsx(Backdrop, { children: c.jsxs("div", {
-    style: { background: u.surfaceHigh, border: `2px solid ${u.outline}`, borderRadius: 14, boxShadow: U.lg, padding: "22px 24px 20px", maxWidth: 480, width: "100%", maxHeight: "90vh", overflowY: "auto", animation: "ts-modal-in 0.18s ease-out" },
+    className: "ts-shop-panel",
+    style: { background: u.surfaceHigh, border: `2px solid ${u.outline}`, borderRadius: 14, boxShadow: U.lg, padding: "22px 24px 20px", maxWidth: 480, width: "100%", maxHeight: "90dvh", overflowY: "auto", animation: "ts-modal-in 0.18s ease-out" },
     children: [
       c.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }, children: [
         c.jsx("h3", { style: { fontFamily: C.display, fontSize: 26, letterSpacing: 0, margin: 0, color: u.text }, children: "LIFELINES" }),
@@ -2164,9 +2195,11 @@ function ShopPanel({ lifelines, points, prices, shieldArmed, onPick, onClose }) 
         else if (available) { stateLabel = "Ready to use, free"; stateColor = u.green; actionText = "Use"; }
         else if (buyable) { stateLabel = purchaseOnly[k] ? `Buy for ${price} pts` : `Buy back for ${price} pts`; stateColor = u.brand; actionText = `Buy ${price}`; }
         else { stateLabel = `Need ${price} pts`; stateColor = u.textMuted; actionText = `${price} pts`; }
-        return c.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 12, background: armed ? "#e5f0e6" : available ? u.surface : buyable ? u.brandSofter : u.surfaceWarm, border: `2px solid ${armed ? u.green : clickable ? u.outline : u.borderLight}`, borderRadius: 10, padding: "11px 14px", opacity: (clickable || armed) ? 1 : 0.72 }, children: [
+        return c.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 14, background: armed ? "#e5f0e6" : available ? u.surfaceHigh : buyable ? u.brandSofter : u.surfaceWarm, border: `3px solid ${armed ? u.green : clickable ? u.outline : u.borderLight}`, borderRadius: 12, padding: "12px 14px", opacity: (clickable || armed) ? 1 : 0.72, boxShadow: (clickable || armed) ? U.sm : "none" }, children: [
+          // bold icon badge, colored by state so the lifeline reads at a glance
+          c.jsx("div", { style: { flexShrink: 0, width: 46, height: 46, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", background: armed ? u.green : clickable ? u.brand : u.surface, border: `2px solid ${(armed || clickable) ? u.outline : u.borderLight}`, color: (armed || clickable) ? u.textOnDark : u.textMuted, boxShadow: (armed || clickable) ? U.sm : "none" }, children: c.jsx(LifeIcon, { name: k, size: 24 }) }),
           c.jsxs("div", { style: { flex: 1, minWidth: 0 }, children: [
-            c.jsx("div", { style: { fontFamily: C.display, fontSize: 17, letterSpacing: 1, color: (clickable || armed) ? u.text : u.textMuted }, children: meta.label }),
+            c.jsx("div", { style: { fontFamily: C.display, fontSize: 18, letterSpacing: 1, color: (clickable || armed) ? u.text : u.textMuted }, children: meta.label }),
             c.jsx("div", { style: { fontFamily: C.body, fontSize: 12.5, lineHeight: 1.4, color: u.textDim, fontWeight: 500, marginTop: 2 }, children: meta.shortDesc }),
             c.jsx("div", { style: { fontFamily: C.mono, fontSize: 9.5, letterSpacing: 0.5, fontWeight: 700, color: stateColor, textTransform: "uppercase", marginTop: 4 }, children: stateLabel })
           ] }),
@@ -2385,11 +2418,17 @@ function RevealScreen(props) {
         c.jsx(Button, { onClick: onHome, variant: "secondary", size: "sm", style: { fontSize: 12 }, children: R.homeButton }),
         c.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", justifyContent: "center" }, children: [
           c.jsx("div", { style: { fontFamily: C.mono, fontSize: 10, letterSpacing: 2, color: u.textMuted, fontWeight: 700, textTransform: "uppercase" }, children: isEndless ? `Bonus Q${level + 1}` : `Q ${String(level + 1).padStart(2, "0")} / 15` }),
-          // slim points strip: 3 pips + total, only when this answer earns
+          // prominent points progress: 3 big pips + "X of 3" to reinforce collecting all three
           scoring
-            ? c.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8, background: u.surfaceWarm, border: `2px solid ${u.borderLight}`, borderRadius: 16, padding: "4px 10px 4px 8px" }, children: [
-                c.jsx("div", { style: { display: "flex", gap: 3 }, children: [0, 1, 2].map((r) => c.jsx("div", { style: { width: 9, height: 9, borderRadius: "50%", background: r < earnedCount ? u.brand : u.surface, border: `1.5px solid ${r < earnedCount ? u.brand : u.borderLight}`, animation: r === earnedCount - 1 ? "ts-pip-pop 0.4s ease-out" : "none" } }, r)) }),
-                c.jsxs("div", { style: { fontFamily: C.mono, fontSize: 11, fontWeight: 700, letterSpacing: 0.5, color: u.brand }, children: [points, " PTS"] })
+            ? c.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 12, background: earnedCount === 3 ? u.brandSofter : u.surfaceWarm, border: `3px solid ${earnedCount === 3 ? u.brand : u.outline}`, borderRadius: 22, padding: "6px 16px 6px 12px", boxShadow: U.sm, animation: earnedCount === 3 ? "ts-streak-pop 0.5s ease-out" : "none" }, children: [
+                c.jsx("div", { style: { display: "flex", gap: 6 }, children: [0, 1, 2].map((r) => {
+                  const filled = r < earnedCount;
+                  return c.jsx("div", { style: { width: 22, height: 22, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: filled ? u.brand : u.surface, border: `2.5px solid ${filled ? u.brand : u.borderLight}`, boxShadow: filled ? U.sm : "none", animation: r === earnedCount - 1 ? "ts-pip-pop 0.4s ease-out" : "none" }, children: filled ? c.jsx("span", { style: { color: u.textOnDark, fontSize: 12, fontFamily: C.display, lineHeight: 1 }, children: "\u2605" }) : null }, r);
+                }) }),
+                c.jsxs("div", { style: { display: "flex", flexDirection: "column", alignItems: "flex-start", lineHeight: 1 }, children: [
+                  c.jsxs("div", { style: { fontFamily: C.display, fontSize: 17, letterSpacing: 0.5, color: u.brand, lineHeight: 1 }, children: [earnedCount, " of 3"] }),
+                  c.jsx("div", { style: { fontFamily: C.mono, fontSize: 8, letterSpacing: 1.5, color: u.brandDeep, fontWeight: 700, textTransform: "uppercase", marginTop: 2 }, children: earnedCount === 3 ? "All earned!" : "Points" })
+                ] })
               ] })
             : c.jsx("div", { style: { fontFamily: C.mono, fontSize: 10, letterSpacing: 1, color: u.textMuted, fontWeight: 700, textTransform: "uppercase" }, children: "Review \u00B7 no points on a miss" })
         ] }),
