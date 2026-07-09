@@ -2464,7 +2464,7 @@ function ComicCard({ cardIndex, meta, dir, firstView, question, revealCorrect, s
           : meta.key === "phrase" ? c.jsx(FacePhrase, { question })
           : c.jsx(FaceRealLife, { question })
         })
-      ),
+      }),
       // in-card redeem footer: fills the lower space, lives with the content it rewards.
       // Only on a scoring (correct) run. Uses the read-gate so it unlocks after a beat.
       scoring && c.jsx("div", { className: "ts-comic-redeem", style: { flexShrink: 0, borderTop: `3px solid ${u.outline}`, padding: "14px 20px", background: redeemed ? u.brandSofter : u.surfaceWarm, display: "flex", justifyContent: "center" }, children:
