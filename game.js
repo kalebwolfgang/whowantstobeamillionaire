@@ -63,10 +63,10 @@ const Wp = {
     },
     {
       q: "You're stopped on the sidewalk and not sure if you can go. What's the smartest question to ask?",
-      options: ["\"Am I free to leave?\"", "\"I didn't do anything, I swear.\"", "\"You can't stop me for no reason.\"", "\"Fine, what do you want to know?\""],
+      options: ["\"Am I free to leave?\"", "\"Why are you stopping me?\"", "\"What did I do wrong?\"", "\"Can I just go now?\""],
       correct: 0,
       hint: "You want one clean piece of information: are you being held, or not? Which question gets that, calmly?",
-      optionExplanations: [null, "Explaining yourself feels natural but it's you talking before you know if you even have to. Find out if you're held first.", "Arguing that they can't stop you starts a fight and can make things worse. A calm question keeps you safer.", "Jumping into answering hands them information you didn't have to give. Ask if you can leave first."],
+      optionExplanations: [null, "Demanding a reason feels bold, but it starts an argument and still doesn't tell you if you're being held. Ask if you can leave instead.", "This assumes you're in trouble and invites them to question you about it. You don't want to open that door before you know if you're even detained.", "Asking softly for permission is weaker than it sounds. It reads as pleading, and a vague 'can I go?' may not get you a clear answer the way 'am I free to leave?' does."],
       principle: "There are two situations: a consensual encounter (you can walk) and a detention (you can't). This calm question tells you which one you're in. If they say you're free, you can go. If not, you stay, stay calm, and save the fight for court. Asking politely keeps the moment from escalating.",
       keyPhrase: { quote: "\"Am I free to leave?\"", gloss: "One calm question tells you if you can walk or should stay." },
       scenario: { setup: "It's late and an officer stops you on your way home.", lines: [{ label: "YOU (calm)", text: "Am I free to leave?" }, { label: "IF YES", text: "Calmly walk away." }, { label: "IF NO", text: "Stay, stay calm, ask for a parent or lawyer." }], note: "Either way, keep your hands visible and your voice level." }
@@ -626,14 +626,14 @@ const Wp = {
       scenario: { setup: "An officer warns that not answering is 'obstruction.'", lines: [{ label: "OFFICER", text: "Give me your name or that's obstruction." }, { label: "YOU (calm)", text: "Am I being detained?" }], note: "Declining alone generally isn't a crime, but staying calm keeps you safest." }
     },
     {
-      q: "In Michigan, if you carry a concealed pistol with a CPL and get stopped, what does the law require?",
-      options: ["Tell the officer immediately, keep hands visible, and show your CPL and ID", "Wait for them to ask about weapons", "Say nothing, since you can stay silent", "Only mention it if they search you"],
+      q: "Immigration officers hand you a form and tell you to sign it. What's the safe move?",
+      options: ["Don't sign anything until you've talked to a lawyer", "Sign it quickly to cooperate and speed things up", "Sign it, since refusing is against the law", "Sign only if you don't understand it"],
       correct: 0,
-      hint: "The statute uses the word 'immediately.' And with a gun present, how you move matters as much as what you say.",
-      optionExplanations: [null, "Waiting to be asked misses the law's word: immediately. You disclose up front.", "This is the dangerous mix-up. The usual stay-silent advice does NOT apply to disclosing the gun.", "Waiting until a search is far too late, and with a firearm present, that's a serious safety risk."],
-      principle: "This is a rare place where Michigan law requires you to speak first. A CPL holder who is carrying must immediately disclose it and show the CPL and a state ID on request (MCL 28.425f). Because a gun is present, this is also the most safety-critical moment in any stop. Keep both hands on the wheel, say clearly and early that you have a CPL and are carrying, say where it is, and never reach toward it. Announce before every move.",
-      keyPhrase: { quote: "Say it immediately, hands on the wheel.", gloss: "Disclose up front, don't reach, follow every instruction." },
-      scenario: { setup: "You're a CPL holder carrying when you get pulled over.", lines: [{ label: "YOU (hands on wheel)", text: "Officer, I have a CPL and I'm carrying. It's on my right hip." }, { label: "THEN", text: "Wait for instructions. Don't reach." }, { label: "MOVE", text: "Announce before every movement." }], note: "Disclosure is required immediately. With a gun present, calm hands save lives." }
+      hint: "A signature can give things away that are hard to undo. What do you want before you commit to one?",
+      optionExplanations: [null, "A common and costly mistake: signing to seem cooperative. Some forms give up your chance to stay. Talk to a lawyer first.", "Refusing to sign is not a crime. You're allowed to wait for a lawyer before signing anything.", "Signing something you don't understand is the most dangerous version. If anything, that's the strongest reason to wait for a lawyer."],
+      principle: "Signing a form for immigration officers can waive important rights, including in some cases your chance to fight to stay. People often sign to seem cooperative or to make the moment end faster, and that can cause harm that's hard to undo. You have the right to say you won't sign anything until you speak with a lawyer. Stay calm and polite, don't lie or present false documents, and keep your right to stay silent whatever your status.",
+      keyPhrase: { quote: "Don't sign without a lawyer.", gloss: "A signature can waive your rights. Wait for legal help." },
+      scenario: { setup: "Officers push a document at you and want a signature.", lines: [{ label: "OFFICER", text: "Just sign here and we're done." }, { label: "YOU (calm)", text: "I won't sign anything without a lawyer." }], note: "Signing can give up rights that are hard to get back. Wait." }
     },
     {
       q: "During a stop, an officer pats down the outside of your clothes. How far does that let them go?",
@@ -2255,8 +2255,8 @@ function RevealScreen(props) {
     setSeen(copy);
   };
 
-  // claim the point for the current card (first tap of the two-tap flow).
-  // returns true if a point was actually redeemed this tap.
+  // claim the point for the current card. redeem now lives INSIDE the card and
+  // is independent of navigation, so advancing never depends on it.
   const claimPoint = (idx) => {
     if (!scoring || claimed[idx]) return false;
     const copy = claimed.slice();
@@ -2269,6 +2269,24 @@ function RevealScreen(props) {
     burstTimer.current = setTimeout(() => setPointBurst(0), 1200);
     return true;
   };
+
+  // safety net: credit any read-but-unredeemed points so a player who navigates
+  // past a card without tapping Redeem still keeps the point they earned by reading.
+  const autoCreditRemaining = () => {
+    if (!scoring) return;
+    const copy = claimed.slice();
+    let added = 0;
+    for (let i = 0; i < CARD_COUNT; i++) {
+      if (seen[i] && !copy[i]) { copy[i] = true; added++; }
+    }
+    if (added === 0) return;
+    setClaimed(copy);
+    const alreadyHad = claimed.filter(Boolean).length;
+    for (let k = 0; k < added; k++) onEarnCardPoint(alreadyHad + k);
+  };
+
+  // advancing to the next question/result: sweep up any unclaimed-but-read points first.
+  const advanceOut = () => { autoCreditRemaining(); onNext(); };
 
   // when a card's dwell completes, mark it read (if first view)
   useEffect(() => {
@@ -2300,12 +2318,7 @@ function RevealScreen(props) {
   const allSeen = seen.every(Boolean);
   const meta = R.cardMeta[current];
   const cardRead = seen[current] || dwellDone; // read-gate: dwell finished
-  // on a scoring run, the current card still owes a point until it's claimed.
-  const owesPoint = scoring && !claimed[current];
-  // the primary button can advance only once the point (if any) is claimed.
-  const canAdvanceCard = cardRead && !owesPoint;
-  // "all done" for the final button also requires every point claimed on a scoring run.
-  const allClaimed = !scoring || claimed.every(Boolean);
+  const canAdvanceCard = cardRead; // advancing is independent of redeeming now
   const yourLetter = selectedIdx != null ? ["A", "B", "C", "D"][selectedIdx] : null;
   const rightLetter = ["A", "B", "C", "D"][question.correct];
 
@@ -2355,9 +2368,9 @@ function RevealScreen(props) {
   }
 
   // ---------- CARDS STEP ----------
-  const finalBtn = isQ15Win
-    ? c.jsx("button", { onClick: onNext, style: { fontFamily: C.display, fontSize: 15, letterSpacing: 2, background: u.brand, color: u.textOnDark, border: `2px solid ${u.outline}`, padding: "11px 26px", borderRadius: 8, cursor: "pointer", textTransform: "uppercase", boxShadow: U.md, animation: "ts-pulse-next 1.8s ease-in-out infinite" }, children: "See your result \u2192" })
-    : c.jsx("button", { onClick: onNext, style: { fontFamily: C.display, fontSize: 15, letterSpacing: 2, background: revealCorrect ? u.brand : u.terra, color: u.textOnDark, border: `2px solid ${u.outline}`, padding: "11px 24px", borderRadius: 8, cursor: "pointer", textTransform: "uppercase", boxShadow: U.md, animation: "ts-pulse-next 1.8s ease-in-out infinite" }, children: revealCorrect ? "Next Question \u2192" : "See Final Result \u2192" });
+  const finalBtnEl = isQ15Win
+    ? c.jsx("button", { onClick: advanceOut, style: { fontFamily: C.display, fontSize: 15, letterSpacing: 2, background: u.brand, color: u.textOnDark, border: `2px solid ${u.outline}`, padding: "11px 26px", borderRadius: 8, cursor: "pointer", textTransform: "uppercase", boxShadow: U.md, animation: "ts-pulse-next 1.8s ease-in-out infinite" }, children: "See your result \u2192" })
+    : c.jsx("button", { onClick: advanceOut, style: { fontFamily: C.display, fontSize: 15, letterSpacing: 2, background: revealCorrect ? u.brand : u.terra, color: u.textOnDark, border: `2px solid ${u.outline}`, padding: "11px 24px", borderRadius: 8, cursor: "pointer", textTransform: "uppercase", boxShadow: U.md, animation: "ts-pulse-next 1.8s ease-in-out infinite" }, children: revealCorrect ? "Next Question \u2192" : "See Final Result \u2192" });
 
   return c.jsxs("div", {
     className: "ts-reveal-screen",
@@ -2383,7 +2396,9 @@ function RevealScreen(props) {
       c.jsxs("div", { style: { flex: 1, minHeight: 0, display: "flex", flexDirection: "column", maxWidth: 760, margin: "0 auto", width: "100%", position: "relative" }, children: [
         c.jsx(ComicCard, {
           cardIndex: current, meta, dir, firstView, question, revealCorrect,
-          selectedIdx, rightLetter
+          selectedIdx, rightLetter,
+          scoring, canRedeem: cardRead, redeemed: claimed[current],
+          onRedeem: () => claimPoint(current)
         }, "card-" + current + "-" + (firstView ? "f" : "s")),
         pointBurst > 0 && c.jsxs("div", { "aria-hidden": true, style: { position: "absolute", left: "50%", top: "42%", transform: "translate(-50%, -50%)", zIndex: 20, pointerEvents: "none", textAlign: "center", animation: "ts-point-burst 1.2s cubic-bezier(.2,.8,.2,1.1) forwards" }, children: [
           c.jsx("div", { style: { fontFamily: C.display, fontSize: "clamp(48px, 11vw, 92px)", color: u.brand, textShadow: `4px 4px 0 ${u.outline}`, lineHeight: 0.9 }, children: "+1" }),
@@ -2400,32 +2415,16 @@ function RevealScreen(props) {
 
         c.jsxs("div", { style: { display: "flex", gap: 10, alignItems: "center", justifyContent: "center", flexWrap: "wrap" }, children: [
           c.jsx(Button, { onClick: () => go(current - 1), variant: "ghost", size: "sm", disabled: current === 0, style: { fontSize: 13 }, children: "\u2039 Prev" }),
-          // Two-tap flow on a scoring card: first tap redeems the point, second advances.
-          owesPoint
-            ? c.jsx(RedeemButton, { canRedeem: cardRead, onClick: () => claimPoint(current) })
-            : (current < CARD_COUNT - 1
-                ? c.jsx(NextCardButton, { canAdvance: canAdvanceCard, scoring, onClick: () => go(current + 1) })
-                : ((allSeen && allClaimed) ? finalBtn : c.jsx(NextCardButton, { canAdvance: canAdvanceCard, scoring, label: "Almost\u2026", onClick: () => {} })))
+          // Redeem now lives inside the card. Nav is just Prev/Next again.
+          current < CARD_COUNT - 1
+            ? c.jsx(NextCardButton, { canAdvance: canAdvanceCard, scoring, onClick: () => go(current + 1) })
+            : (allSeen ? finalBtnEl : c.jsx(NextCardButton, { canAdvance: canAdvanceCard, scoring, label: "Almost\u2026", onClick: () => {} }))
         ] }),
 
         !allSeen && c.jsx("button", { onClick: onSkipReview, style: { background: "transparent", border: "none", fontFamily: C.mono, fontSize: 11, letterSpacing: 2, color: u.textMuted, cursor: "pointer", textTransform: "uppercase", fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 3, padding: "2px 10px" }, children: scoring ? "Skip Review (no points) \u2192" : "Skip \u2192" })
       ] }),
 
       revealCorrect && c.jsx(Confetti, { intensity: "med" })
-    ]
-  });
-}
-
-// First tap of the two-tap flow on a scoring card: claim the point.
-// Shows the same read-gate dwell fill, then a bright, pulsing "Redeem +1".
-function RedeemButton({ canRedeem, onClick }) {
-  return c.jsxs("button", {
-    onClick: canRedeem ? onClick : undefined,
-    disabled: !canRedeem,
-    style: { position: "relative", overflow: "hidden", fontFamily: C.display, fontSize: 13, letterSpacing: 1.5, background: canRedeem ? u.brand : u.surfaceWarm, color: canRedeem ? u.textOnDark : u.textMuted, border: `2px solid ${u.outline}`, padding: "10px 22px", borderRadius: 8, cursor: canRedeem ? "pointer" : "default", textTransform: "uppercase", boxShadow: canRedeem ? U.md : "none", minWidth: 140, animation: canRedeem ? "ts-pulse-next 1.6s ease-in-out infinite" : "none" },
-    children: [
-      !canRedeem && c.jsx("span", { "aria-hidden": true, style: { position: "absolute", left: 0, top: 0, bottom: 0, background: u.brandSofter, animation: "ts-dwell-fill 2s linear forwards", zIndex: 0 } }),
-      c.jsx("span", { style: { position: "relative", zIndex: 1 }, children: canRedeem ? "Redeem +1 \u2605" : "Reading\u2026" })
     ]
   });
 }
@@ -2446,7 +2445,7 @@ function NextCardButton({ canAdvance, onClick, label, scoring }) {
 // Bold, self-explaining points banner shown above the review cards.
 // Makes the "read 3 cards -> earn 3 points -> spend on lifelines" loop obvious.
 // ---------- the single comic card, four faces ----------
-function ComicCard({ cardIndex, meta, dir, firstView, question, revealCorrect, selectedIdx, rightLetter }) {
+function ComicCard({ cardIndex, meta, dir, firstView, question, revealCorrect, selectedIdx, rightLetter, scoring, canRedeem, redeemed, onRedeem }) {
   // outer animation: flip on first view, slide on revisit
   const anim = firstView
     ? "ts-card-flip-in 0.5s cubic-bezier(.2,.7,.2,1) both"
@@ -2465,8 +2464,33 @@ function ComicCard({ cardIndex, meta, dir, firstView, question, revealCorrect, s
           : meta.key === "phrase" ? c.jsx(FacePhrase, { question })
           : c.jsx(FaceRealLife, { question })
         })
+      ),
+      // in-card redeem footer: fills the lower space, lives with the content it rewards.
+      // Only on a scoring (correct) run. Uses the read-gate so it unlocks after a beat.
+      scoring && c.jsx("div", { className: "ts-comic-redeem", style: { flexShrink: 0, borderTop: `3px solid ${u.outline}`, padding: "14px 20px", background: redeemed ? u.brandSofter : u.surfaceWarm, display: "flex", justifyContent: "center" }, children:
+        c.jsx(InCardRedeem, { canRedeem, redeemed, onRedeem })
       })
     ] })
+  });
+}
+
+// The redeem control that lives INSIDE the review card. Reading the card unlocks
+// it (read-gate), tapping banks the point, and it settles into a claimed state.
+function InCardRedeem({ canRedeem, redeemed, onRedeem }) {
+  if (redeemed) {
+    return c.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 10, fontFamily: C.display, fontSize: 16, letterSpacing: 1.5, color: u.brandDeep, textTransform: "uppercase" }, children: [
+      c.jsx("span", { style: { fontFamily: C.display, fontSize: 20, color: u.brand }, children: "\u2605" }),
+      c.jsx("span", { children: "Point earned" })
+    ] });
+  }
+  return c.jsxs("button", {
+    onClick: canRedeem ? onRedeem : undefined,
+    disabled: !canRedeem,
+    style: { position: "relative", overflow: "hidden", fontFamily: C.display, fontSize: "clamp(15px, 2.6vw, 19px)", letterSpacing: 1.5, background: canRedeem ? u.brand : u.surface, color: canRedeem ? u.textOnDark : u.textMuted, border: `2px solid ${u.outline}`, padding: "12px 34px", borderRadius: 10, cursor: canRedeem ? "pointer" : "default", textTransform: "uppercase", boxShadow: canRedeem ? U.md : "none", minWidth: 200, animation: canRedeem ? "ts-pulse-next 1.6s ease-in-out infinite" : "none" },
+    children: [
+      !canRedeem && c.jsx("span", { "aria-hidden": true, style: { position: "absolute", left: 0, top: 0, bottom: 0, background: u.brandSofter, animation: "ts-dwell-fill 2s linear forwards", zIndex: 0 } }),
+      c.jsx("span", { style: { position: "relative", zIndex: 1 }, children: canRedeem ? "\u2605 Redeem +1 Point" : "Reading\u2026" })
+    ]
   });
 }
 
