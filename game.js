@@ -2024,7 +2024,6 @@ function QuestionScreen(props) {
     revealWrong, showFloating, phase, removedAnswers, juryResults, hintShown, lifelines, muted,
     setMuted, isEndless, points, shieldArmed, onSelect, onLockIn, onNext, onHome, onRequestLifeline,
     onOpenShop, onEnterEndless } = props;
-  const bonusStreak = isEndless ? Math.max(0, streak - 15) : 0;
   return c.jsxs("div", {
     style: { maxWidth: 1280, margin: "0 auto", padding: "24px 24px 24px", display: "flex", gap: 28, alignItems: "flex-start", minHeight: "100vh", boxSizing: "border-box" },
     className: "ts-game-layout ts-game-screen",
@@ -2033,7 +2032,8 @@ function QuestionScreen(props) {
         c.jsxs("div", { className: "ts-top-bar", style: { display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }, children: [
           c.jsx(Button, { variant: "secondary", size: "sm", onClick: onHome, style: { fontSize: 12 }, children: R.homeButton }),
           c.jsxs("div", { className: "ts-hud", style: { flex: 1, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 18, flexWrap: "wrap", padding: "14px 22px", background: u.surface, border: `2px solid ${u.outline}`, borderRadius: 10, boxShadow: U.md, minWidth: 260 }, children: [
-            c.jsxs("div", { children: [
+            // Streak: only shown in endless mode, where the money is frozen and streak is the live score.
+            isEndless && c.jsxs("div", { children: [
               c.jsx("div", { style: { fontFamily: C.mono, fontSize: 10, letterSpacing: 2, color: u.textMuted, marginBottom: 4, fontWeight: 700, textTransform: "uppercase" }, children: "Streak" }),
               c.jsx("div", { style: { fontFamily: C.display, fontSize: 22, letterSpacing: 0, color: streak > 0 ? u.terra : u.textMuted, lineHeight: 1, animation: streak > 0 ? "ts-streak-pop 0.5s ease-out" : "none" }, children: streak }, "streak-" + streak)
             ] }),
@@ -2042,7 +2042,8 @@ function QuestionScreen(props) {
               c.jsx("div", { style: { fontFamily: C.display, fontSize: 22, letterSpacing: 0, color: u.brand, lineHeight: 1 }, children: points }),
               c.jsx("div", { style: { fontFamily: C.mono, fontSize: 8, letterSpacing: 1, color: u.textMuted, fontWeight: 700 }, children: "SPEND ON LIFELINES" })
             ] }),
-            c.jsxs("div", { style: { textAlign: "right" }, children: [
+            // Worth: only shown in the main 15, where the climbing prize is the stakes. Hidden in endless (money is maxed and inert).
+            !isEndless && c.jsxs("div", { style: { textAlign: "right" }, children: [
               c.jsx("div", { style: { fontFamily: C.mono, fontSize: 10, letterSpacing: 2, color: u.textMuted, fontWeight: 700, textTransform: "uppercase", marginBottom: 4 }, children: "Worth" }),
               c.jsx("div", { className: "ts-hud-worth", style: { fontFamily: C.display, fontSize: "clamp(24px, 3.4vw, 34px)", color: u.brand, letterSpacing: "-0.01em", lineHeight: 1 }, children: Po(rung.prize) })
             ] })
@@ -2052,7 +2053,7 @@ function QuestionScreen(props) {
         c.jsx(ProgressDots, { level, revealCorrect, revealWrong, isEndless }),
         c.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12, flexWrap: "wrap" }, children: [
           c.jsx("div", { className: "ts-q-header", style: { fontFamily: C.display, fontSize: 28, letterSpacing: "-0.01em", color: u.text, lineHeight: 1 }, children: isEndless
-            ? c.jsxs(c.Fragment, { children: [R.endlessMode.headerLabel, " Q", String(level + 1).padStart(2, "0"), " ", c.jsxs("span", { className: "ts-q-header-total", style: { color: u.terra, fontSize: 18 }, children: ["\u00B7 STREAK ", bonusStreak] })] })
+            ? c.jsxs(c.Fragment, { children: [R.endlessMode.headerLabel, " Q", String(level + 1).padStart(2, "0")] })
             : c.jsxs(c.Fragment, { children: ["QUESTION ", String(level + 1).padStart(2, "0"), " ", c.jsx("span", { className: "ts-q-header-total", style: { color: u.textMuted, fontSize: 18 }, children: "/ 15" })] }) }),
           c.jsx("div", { style: { fontFamily: C.mono, fontSize: 10, letterSpacing: 2, color: u.text, textTransform: "uppercase", fontWeight: 700, padding: "5px 12px", background: u.mustardSoft, border: `2px solid ${u.outline}`, borderRadius: 6, boxShadow: U.sm }, children: difficulty })
         ] }),
@@ -2072,7 +2073,7 @@ function QuestionScreen(props) {
           c.jsx("div", { className: "ts-action-bar-right", style: { display: "flex", gap: 12 }, children: c.jsx(Button, { variant: "primary", size: "md", disabled: selectedIdx === null || locked, onClick: onLockIn, children: "Lock It In" }) })
         ] })
       ] }),
-      c.jsx(Ladder, { currentLevel: level, isEndless, bonusStreak }),
+      c.jsx(Ladder, { currentLevel: level, isEndless, streak }),
       revealCorrect && c.jsx(Confetti, { intensity: stage >= 3 ? "high" : stage >= 2 ? "med" : "low" })
     ]
   });
@@ -2181,13 +2182,13 @@ function ShopPanel({ lifelines, points, prices, shieldArmed, onPick, onClose }) 
   }) });
 }
 
-function Ladder({ currentLevel, isEndless, bonusStreak }) {
+function Ladder({ currentLevel, isEndless, streak }) {
   return c.jsxs("aside", {
     className: "ts-ladder",
     style: { width: 240, flexShrink: 0, background: u.surface, border: `2px solid ${u.outline}`, borderRadius: 10, position: "sticky", top: 60, maxHeight: "calc(100vh - 80px)", overflowY: "auto", boxShadow: U.md },
     children: [
       c.jsx("div", { style: { fontFamily: C.display, fontSize: isEndless ? 16 : 20, letterSpacing: 0, color: u.text, padding: "14px 18px", borderBottom: `2px solid ${u.outline}`, background: isEndless ? u.terraSoft : u.brandSoft, textAlign: "center" }, children: isEndless
-        ? c.jsxs(c.Fragment, { children: [R.endlessMode.ladderLabel, c.jsxs("div", { style: { fontFamily: C.display, fontSize: 26, color: u.terra, lineHeight: 1, marginTop: 4 }, children: ["STREAK ", bonusStreak] })] })
+        ? c.jsxs(c.Fragment, { children: [R.endlessMode.ladderLabel, c.jsxs("div", { style: { fontFamily: C.display, fontSize: 26, color: u.terra, lineHeight: 1, marginTop: 4 }, children: ["STREAK ", streak] })] })
         : "THE LADDER" }),
       [...he].reverse().map((r) => {
         const idx = r.level - 1;
@@ -2237,7 +2238,6 @@ function RevealScreen(props) {
   const earnedCount = claimed.filter(Boolean).length; // points actually redeemed
   const allEarned = scoring && earnedCount === CARD_COUNT;
   const isQ15Win = revealCorrect && level === he.length - 1 && !isEndless;
-  const bonusStreak = isEndless ? Math.max(0, streak - 15) : 0;
 
   // begin the dwell gate for whichever card is showing
   const startDwell = () => {
@@ -2401,7 +2401,7 @@ function RevealScreen(props) {
         c.jsx(ComicCard, {
           cardIndex: current, meta, dir, firstView, question, revealCorrect,
           selectedIdx, rightLetter,
-          scoring, canRedeem: cardRead, redeemed: claimed[current],
+          scoring, redeemed: claimed[current],
           onRedeem: () => claimPoint(current)
         }, "card-" + current + "-" + (firstView ? "f" : "s")),
         pointBurst > 0 && c.jsxs("div", { "aria-hidden": true, style: { position: "absolute", left: "50%", top: "42%", transform: "translate(-50%, -50%)", zIndex: 20, pointerEvents: "none", textAlign: "center", animation: "ts-point-burst 1.2s cubic-bezier(.2,.8,.2,1.1) forwards" }, children: [
@@ -2453,7 +2453,7 @@ function NextCardButton({ canAdvance, onClick, label, scoring, pointOwed, cardRe
 // Bold, self-explaining points banner shown above the review cards.
 // Makes the "read 3 cards -> earn 3 points -> spend on lifelines" loop obvious.
 // ---------- the single comic card, four faces ----------
-function ComicCard({ cardIndex, meta, dir, firstView, question, revealCorrect, selectedIdx, rightLetter, scoring, canRedeem, redeemed, onRedeem }) {
+function ComicCard({ cardIndex, meta, dir, firstView, question, revealCorrect, selectedIdx, rightLetter, scoring, redeemed, onRedeem }) {
   // outer animation: flip on first view, slide on revisit
   const anim = firstView
     ? "ts-card-flip-in 0.5s cubic-bezier(.2,.7,.2,1) both"
@@ -2476,29 +2476,26 @@ function ComicCard({ cardIndex, meta, dir, firstView, question, revealCorrect, s
       // in-card redeem footer: fills the lower space, lives with the content it rewards.
       // Only on a scoring (correct) run. Uses the read-gate so it unlocks after a beat.
       scoring && c.jsx("div", { className: "ts-comic-redeem", style: { flexShrink: 0, borderTop: `3px solid ${u.outline}`, padding: "14px 20px", background: redeemed ? u.brandSofter : u.surfaceWarm, display: "flex", justifyContent: "center" }, children:
-        c.jsx(InCardRedeem, { canRedeem, redeemed, onRedeem })
+        c.jsx(InCardRedeem, { redeemed, onRedeem })
       })
     ] })
   });
 }
 
-// The redeem control that lives INSIDE the review card. Reading the card unlocks
-// it (read-gate), tapping banks the point, and it settles into a claimed state.
-function InCardRedeem({ canRedeem, redeemed, onRedeem }) {
+// The redeem control that lives INSIDE the review card. Instantly tappable
+// (no read-gate here; that lives on the Next button). Banks the point, then
+// settles into a claimed state. The read-gate for advancing stays on Next.
+function InCardRedeem({ redeemed, onRedeem }) {
   if (redeemed) {
     return c.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 10, fontFamily: C.display, fontSize: 16, letterSpacing: 1.5, color: u.brandDeep, textTransform: "uppercase" }, children: [
       c.jsx("span", { style: { fontFamily: C.display, fontSize: 20, color: u.brand }, children: "\u2605" }),
       c.jsx("span", { children: "Point earned" })
     ] });
   }
-  return c.jsxs("button", {
-    onClick: canRedeem ? onRedeem : undefined,
-    disabled: !canRedeem,
-    style: { position: "relative", overflow: "hidden", fontFamily: C.display, fontSize: "clamp(15px, 2.6vw, 19px)", letterSpacing: 1.5, background: canRedeem ? u.brand : u.surface, color: canRedeem ? u.textOnDark : u.textMuted, border: `2px solid ${u.outline}`, padding: "12px 34px", borderRadius: 10, cursor: canRedeem ? "pointer" : "default", textTransform: "uppercase", boxShadow: canRedeem ? U.md : "none", minWidth: 200, animation: canRedeem ? "ts-pulse-next 1.6s ease-in-out infinite" : "none" },
-    children: [
-      !canRedeem && c.jsx("span", { "aria-hidden": true, style: { position: "absolute", left: 0, top: 0, bottom: 0, background: u.brandSofter, animation: "ts-dwell-fill 2s linear forwards", zIndex: 0 } }),
-      c.jsx("span", { style: { position: "relative", zIndex: 1 }, children: canRedeem ? "\u2605 Redeem +1 Point" : "Reading\u2026" })
-    ]
+  return c.jsx("button", {
+    onClick: onRedeem,
+    style: { fontFamily: C.display, fontSize: "clamp(15px, 2.6vw, 19px)", letterSpacing: 1.5, background: u.brand, color: u.textOnDark, border: `2px solid ${u.outline}`, padding: "12px 34px", borderRadius: 10, cursor: "pointer", textTransform: "uppercase", boxShadow: U.md, minWidth: 200, animation: "ts-pulse-next 1.6s ease-in-out infinite" },
+    children: "\u2605 Redeem +1 Point"
   });
 }
 
@@ -2532,7 +2529,7 @@ function FaceInfo({ question }) {
 function FacePhrase({ question }) {
   const kp = question.keyPhrase || { quote: "", gloss: "" };
   return c.jsxs("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", minHeight: "100%", gap: 16 }, children: [
-    c.jsx("div", { className: "ts-phrase-quote", style: { fontFamily: C.display, fontSize: "clamp(28px, 5.5vw, 46px)", lineHeight: 1.05, letterSpacing: "-0.01em", color: u.text, textShadow: `4px 4px 0 ${u.brandBright}`, animation: "ts-phrase-in 0.6s cubic-bezier(.2,.8,.2,1.2) both", maxWidth: "16ch" }, children: kp.quote }),
+    c.jsx("div", { className: "ts-phrase-quote", style: { fontFamily: C.display, fontSize: "clamp(28px, 5.5vw, 46px)", lineHeight: 1.05, letterSpacing: "-0.01em", color: u.text, textShadow: `2px 2px 0 ${u.brandBright}`, animation: "ts-phrase-in 0.6s cubic-bezier(.2,.8,.2,1.2) both", maxWidth: "16ch" }, children: kp.quote }),
     kp.gloss && c.jsx("p", { style: { fontFamily: C.body, fontSize: 15, lineHeight: 1.55, color: u.textDim, margin: 0, fontWeight: 500, maxWidth: 460 }, children: kp.gloss })
   ] });
 }
