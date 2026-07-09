@@ -80,6 +80,56 @@ const Wp = {
       principle: "There's a saying in criminal law: 'you might beat the rap but you can't beat the ride.' Resisting arrest is its own crime, even if the arrest itself was illegal. The place to fight an unfair stop is in court, not on the street.",
       keyPhrase: { quote: "Don't fight it. Fight it in court.", gloss: "Even if the stop is wrong, resisting can hurt you and add new charges." },
       scenario: { setup: "The stop feels completely unfair and you know they've got no reason.", lines: [{ label: "STAY CALM", text: "Keep hands visible. Don't run. Don't push back." }, { label: "REMEMBER", text: "Badge numbers. Patrol car numbers. What was said." }, { label: "LATER", text: "A lawyer challenges an unlawful stop in court." }], note: "You might beat the rap, but you can't beat the ride. Win it later." }
+    },
+  {
+      q: "You're a passenger in a car that gets pulled over in Michigan. What are YOU required to hand the officer?",
+      options: ["Nothing, unless they suspect you of a crime", "Your ID, the same as the driver", "Your phone so they can check it", "A written statement about where you're going"],
+      correct: 0,
+      hint: "Think about who is actually driving. The rules for the person behind the wheel are not the rules for everyone else in the car.",
+      optionExplanations: [null, "The driver must show a license because driving is a licensed privilege. A passenger has no such duty without reasonable suspicion of a crime.", "Your phone is private. Nobody in the car has to hand it over without a warrant.", "You're never required to explain your travel plans. You can stay silent on that."],
+      principle: "Michigan is not a 'stop and identify' state. The driver must show a license, but a passenger generally does not have to show ID or even give a name unless the officer has specific, articulable suspicion that the passenger committed a crime. You can still calmly ask if you're free to leave.",
+      keyPhrase: { quote: "Passengers aren't drivers.", gloss: "In Michigan, a passenger generally doesn't owe ID without suspicion of a crime." },
+      scenario: { setup: "You're riding shotgun when the car gets pulled over for a busted taillight.", lines: [{ label: "OFFICER", text: "I'll need ID from everyone in the car." }, { label: "YOU", text: "I'd rather not answer questions. Am I free to leave?" }], note: "Michigan has no general stop-and-identify law. The driver's duty isn't yours." }
+    },
+    {
+      q: "Immigration officers knock on your door. What's the smartest first move?",
+      options: ["Keep the door closed and ask them to show a warrant", "Open the door right away to be polite", "Step outside so they can talk to you", "Let them in to look around quickly"],
+      correct: 0,
+      hint: "Opening the door can count as saying yes. What lets you find out what they actually have before anything changes?",
+      optionExplanations: [null, "Opening the door can be treated as consent to enter. Keep it closed and talk through it first.", "Stepping outside gives up the protection your home has. Stay inside and keep the door shut.", "Letting them in is consent. Once you do that, the protections you had are mostly gone."],
+      principle: "Your home has the strongest privacy protection in the law. Opening the door, or stepping out, can be treated as letting officers in. You can speak through a closed door, stay calm, and ask them to show you a warrant before anything else happens.",
+      keyPhrase: { quote: "Talk through the door.", gloss: "Don't open it. Ask to see a warrant first. Opening can count as consent." },
+      scenario: { setup: "There's a loud knock and voices identifying themselves as immigration officers.", lines: [{ label: "OFFICER", text: "Open up, we need to talk to you." }, { label: "YOU", text: "I don't consent to entry. Slide any warrant under the door." }], note: "You have the right to stay silent and to speak with a lawyer, whatever your status." }
+    },
+    {
+      q: "You want to film police making an arrest on a public sidewalk. When are you allowed to?",
+      options: ["As long as you keep back and don't interfere", "Only if the officers agree first", "Only if you never post it online", "Only if you're standing on your own property"],
+      correct: 0,
+      hint: "The key is a public place and staying out of the way. Their permission was never the deciding factor.",
+      optionExplanations: [null, "You don't need their permission. Recording police doing public duties in public is protected.", "Where you post it later doesn't change your right to record in the first place.", "You don't have to be on your own property. A public sidewalk is fine."],
+      principle: "Courts across the country treat filming police doing their public job in public as First Amendment protected. In Michigan, recording in a public place where nobody has a reasonable expectation of privacy is on solid ground. The one real limit is simple: don't physically get in the way.",
+      keyPhrase: { quote: "Film from a safe distance.", gloss: "Public place, public duties. Recording is protected; interfering is not." },
+      scenario: { setup: "Officers are arresting someone across the street and you pull out your phone.", lines: [{ label: "YOU CAN", text: "Stand back on the sidewalk and record what happens." }, { label: "STAY BACK", text: "Keep enough distance that you're clearly not interfering." }], note: "Recording in public, where there's no expectation of privacy, is well protected in Michigan." }
+    },
+    {
+      q: "An officer says \"we can do this the easy way if you just tell me what happened.\" What can you say?",
+      options: ["That you want to stay silent and speak to a lawyer", "You have to answer once they phrase it that way", "You should explain everything to seem cooperative", "You can only stay silent if you're already arrested"],
+      correct: 0,
+      hint: "A friendly-sounding push is still a push. Does the wording change what your rights are?",
+      optionExplanations: [null, "The 'easy way' framing is a persuasion tactic, not a new rule. You can still invoke your rights.", "Cooperating by explaining can hand them statements that get used against you. You can decline.", "Your right to stay silent doesn't wait for handcuffs. You can use it anytime."],
+      principle: "Officers are allowed to sound friendly and to suggest talking will make things easier. That's a technique, not a legal rule. Your right to stay silent and ask for a lawyer works no matter how the question is dressed up. Saying the words out loud is what turns the protection on.",
+      keyPhrase: { quote: "\"I'm staying silent. I want a lawyer.\"", gloss: "Friendly phrasing doesn't change your rights. Say it out loud." },
+      scenario: { setup: "The officer leans in with a calm, reassuring tone.", lines: [{ label: "OFFICER", text: "Come on, just help me understand what happened." }, { label: "YOU", text: "I'm going to stay silent, and I want a lawyer." }], note: "A softer tone is still questioning. The same words protect you." }
+    },
+    {
+      q: "A police officer asks to come inside your home to \"just talk.\" What can you do?",
+      options: ["Ask if they have a warrant and step outside or keep the door shut", "You have to let them in if they ask", "Invite them in so you don't look guilty", "Hide and hope they leave"],
+      correct: 0,
+      hint: "Your home is the place the law protects most. What forces an officer to have real paperwork before coming in?",
+      optionExplanations: [null, "A request isn't a requirement. You don't have to let them in just because they asked.", "Letting them in is giving consent, which removes the protection you started with.", "Hiding doesn't help and can escalate things. Calmly speak through the door instead."],
+      principle: "The Fourth Amendment gives your home the strongest protection there is. Police generally need a warrant signed by a judge, or your consent, to come inside. Saying no to entry is completely legal and doesn't make you look guilty. It just keeps the decision where it belongs, with a judge.",
+      keyPhrase: { quote: "\"Do you have a warrant?\"", gloss: "Without one, you don't have to let police into your home." },
+      scenario: { setup: "An officer is on your porch asking to step inside for a chat.", lines: [{ label: "OFFICER", text: "Mind if I come in so we can talk?" }, { label: "YOU", text: "I don't consent to you coming in. Do you have a warrant?" }], note: "Saying no to entry is your right. A warrant or your consent is what lets them in." }
     }
   ],
   medium: [
@@ -132,6 +182,56 @@ const Wp = {
       principle: "SROs feel like part of the school but they're actually sworn police officers who can arrest you and file real charges. Anything you say to them can end up in court. The friendly setting is real; the legal reality isn't friendly.",
       keyPhrase: { quote: "SRO = police officer.", gloss: "Not a teacher, not a counselor. Same rights, same risks." },
       scenario: { setup: "The School Resource Officer waves you over to talk about a fight.", lines: [{ label: "SRO", text: "Come with me. Let's talk about that fight." }, { label: "YOU", text: "I want to talk to my parent or a lawyer first." }], note: "The first SRO program in the country started in Flint, Michigan, in the 1950s." }
+    },
+  {
+      q: "Officers at your door say they have a warrant. What tells you it can actually force entry into your home?",
+      options: ["It's signed by a judge and names your address or a person there", "It has any official-looking government seal on it", "An officer signed it themselves", "It simply has the word 'warrant' at the top"],
+      correct: 0,
+      hint: "The whole point of a warrant is that someone neutral checked it. Who has to sign for it to carry that weight?",
+      optionExplanations: [null, "A seal alone doesn't make it a judicial warrant. Look for a judge's signature and your details.", "An officer signing their own paper is an administrative warrant, which doesn't authorize forced home entry.", "The title 'warrant' isn't enough. What matters is whether a judge signed it."],
+      principle: "There are two very different documents. A judicial warrant is signed by a judge, names a person or place, and can authorize entry. An administrative or immigration warrant (like ICE's Form I-200 or I-205) is signed by an officer, not a judge, and does not by itself authorize forced entry into your home. Ask to read it through the window or under the door.",
+      keyPhrase: { quote: "Judge's signature = real warrant.", gloss: "Officer-signed paper is administrative and doesn't force home entry." },
+      scenario: { setup: "Agents hold up a document and demand you open the door.", lines: [{ label: "YOU", text: "Slide it under the door so I can read it." }, { label: "CHECK FOR", text: "A judge's signature and your name or address." }, { label: "IF OFFICER-SIGNED", text: "It's administrative. You don't have to let them in." }], note: "A judge signs judicial warrants. Officers sign administrative ones. Only the first forces entry." }
+    },
+    {
+      q: "During a traffic stop, an officer says \"step out of the car for me.\" What does the law say?",
+      options: ["You generally have to step out, but you can still stay silent and refuse searches", "You can refuse to get out entirely", "You must also answer all their questions once outside", "You automatically consent to a search by stepping out"],
+      correct: 0,
+      hint: "Two different things are happening: a lawful order to move, and your right to control your words and your stuff. They don't cancel each other.",
+      optionExplanations: [null, "Courts have said officers can order occupants out during a stop. That part you follow.", "Stepping out doesn't obligate you to talk. You can stand outside and stay silent.", "Getting out is not consent to a search. You can still clearly say you don't consent."],
+      principle: "The Supreme Court (Pennsylvania v. Mimms, extended to passengers in Maryland v. Wilson) said officers can order people out of a car during a lawful stop for safety. That's a lawful command. But stepping out is not consent to anything. You keep your right to stay silent and to refuse a search once you're standing there.",
+      keyPhrase: { quote: "Step out, but stay silent.", gloss: "You follow the order to exit. You still control your words and consent." },
+      scenario: { setup: "You're pulled over and the officer asks you to get out of the vehicle.", lines: [{ label: "OFFICER", text: "Step out of the car, please." }, { label: "YOU", text: "[steps out] I don't consent to a search, and I'm staying silent." }], note: "Getting out is lawful to require. Talking and consenting are still your choice." }
+    },
+    {
+      q: "ICE agents show up at your workplace. Where can they go without a judicial warrant?",
+      options: ["Only public areas, not private back rooms or offices", "Anywhere in the building once they're inside", "Any area a manager points them toward", "Nowhere at all, ever"],
+      correct: 0,
+      hint: "Think about the difference between the lobby anyone can walk into and the locked staff-only areas.",
+      optionExplanations: [null, "Being inside the public part doesn't open the private areas. Those need a judge's warrant.", "A manager can't waive everyone's rights to private space. A judicial warrant is what's needed.", "They can be in public areas like a lobby. The protection is specifically for private areas."],
+      principle: "A workplace has public areas (like a lobby or dining room) and private ones (kitchens, offices, staff-only rooms). Without a judicial warrant signed by a judge, or someone's consent, immigration agents can be in public areas but not private ones. Employers can mark and enforce private spaces to keep that line clear.",
+      keyPhrase: { quote: "Public areas yes, private no.", gloss: "Private, non-public spaces need a judicial warrant, not an officer-signed one." },
+      scenario: { setup: "Agents enter the front of the business and ask to go into the back.", lines: [{ label: "STAFF", text: "This area is private. Do you have a judicial warrant?" }, { label: "IF ADMINISTRATIVE", text: "They can stay in public areas, not the private back." }], note: "The lobby is public. The kitchen and offices are private and protected." }
+    },
+    {
+      q: "Michigan is often called a \"one-party consent\" state for recording. What does that let you do most reliably?",
+      options: ["Record a conversation you're actually part of", "Secretly record any two strangers talking nearby", "Tap into someone else's phone calls", "Record anyone as long as you never share it"],
+      correct: 0,
+      hint: "The safe version is about conversations you're in, not other people's private talks.",
+      optionExplanations: [null, "Secretly recording others' private conversation you're not in is eavesdropping, a felony.", "Accessing someone else's calls or messages is illegal, not covered by this at all.", "Whether you share it isn't the test. Being a participant, or a public setting, is what matters."],
+      principle: "Michigan's law is often summarized as one-party consent: you can record a conversation you're a participant in. Recording other people's private conversation that you're not part of is eavesdropping and can be a felony. Note that Michigan courts have some disagreement on the edges, and public settings with no expectation of privacy are treated differently, so the safest ground is recording conversations you're in or things happening in public.",
+      keyPhrase: { quote: "Record what you're part of.", gloss: "Your own conversations, or public settings. Not others' private talks." },
+      scenario: { setup: "You want a record of a conversation you're having with someone.", lines: [{ label: "SAFE", text: "You're in the conversation, so you can record it." }, { label: "NOT SAFE", text: "Secretly recording a private talk you're not part of." }], note: "Public places with no expectation of privacy are a separate, more protected situation." }
+    },
+    {
+      q: "A police officer stops you on the street and asks for your name and ID in Michigan. When must you provide it?",
+      options: ["When they have reasonable suspicion you committed a crime", "Anytime an officer asks, no exceptions", "Only if you're carrying a wallet", "Never, under any circumstances"],
+      correct: 0,
+      hint: "Michigan doesn't make you show ID for no reason, but it isn't a total shield either. What has to exist first?",
+      optionExplanations: [null, "Michigan has no general stop-and-identify law, so it's not 'anytime they ask.'", "Whether you're carrying a wallet has nothing to do with the legal rule.", "'Never' is too strong. Once there's reasonable suspicion, or an arrest, the rules change."],
+      principle: "Michigan is not a stop-and-identify state. Walking, biking, or standing on the street, you generally don't have to show ID just because an officer asks. That changes if they have reasonable suspicion you committed a crime, or if you're driving or lawfully arrested. Asking 'am I free to leave?' helps you figure out which situation you're in.",
+      keyPhrase: { quote: "No suspicion, no required ID.", gloss: "Michigan isn't a stop-and-identify state, outside driving or arrest." },
+      scenario: { setup: "You're walking home and an officer asks for your ID.", lines: [{ label: "YOU", text: "Am I free to leave, or am I being detained?" }, { label: "IF FREE", text: "You can decline to show ID and walk on." }], note: "Driving and lawful arrest are the clear exceptions where you must identify yourself." }
     }
   ],
   hard: [
@@ -184,6 +284,56 @@ const Wp = {
       principle: "Juvenile court focuses on rehabilitation: counseling, education, second chances. Michigan raised the age to 18 in 2021 because science shows teen brains are still developing. Adult convictions follow you forever; juvenile records can often be sealed.",
       keyPhrase: { quote: "Michigan: 18 is adult.", gloss: "Raised from 17 on October 1, 2021." },
       scenario: { setup: "You want to know when the system starts treating you as a full adult in Michigan.", lines: [{ label: "BEFORE OCT 2021", text: "17-year-olds went straight to adult court." }, { label: "NOW", text: "17-year-olds go through juvenile court instead." }], note: "Juvenile court can seal your record. Adult court means a conviction that follows you." }
+    },
+  {
+      q: "What's the core legal difference between an ICE administrative warrant and a judicial warrant?",
+      options: ["An administrative warrant is signed by an officer; a judicial warrant is signed by a judge and can authorize home entry", "They're the same document with different names", "An administrative warrant is stronger than a judicial one", "Only a judicial warrant is used in immigration cases"],
+      correct: 0,
+      hint: "Ask who reviews it. One is the agency checking its own work; the other is a neutral judge.",
+      optionExplanations: [null, "They're genuinely different documents with different power. Don't treat them as interchangeable.", "It's the reverse. A judicial warrant carries the neutral-judge review that gives it more authority over your home.", "Both appear in immigration contexts. The point is knowing which one is at your door."],
+      principle: "A judicial warrant is reviewed and signed by a neutral judge and can authorize entry into a home. An administrative warrant (ICE Forms I-200 or I-205) is signed by an immigration officer, not a judge, and traditionally does not authorize forced entry into a private home. The whole value of a warrant comes from a neutral party checking it, which an agency signing its own paper doesn't provide.",
+      keyPhrase: { quote: "Judge-signed vs. officer-signed.", gloss: "Only the judicial warrant carries neutral review and can force home entry." },
+      scenario: { setup: "You're handed a document and told it authorizes entry.", lines: [{ label: "LOOK AT", text: "The signature line and the header." }, { label: "JUDICIAL", text: "Court name, judge's signature, your address or name." }, { label: "ADMINISTRATIVE", text: "'Department of Homeland Security,' officer signature." }], note: "Recent policy fights don't change your right to check who signed before opening the door." }
+    },
+    {
+      q: "Under Arizona v. Gant, when can police search your car after arresting you during a traffic stop?",
+      options: ["Only if you could reach the passenger area, or they expect evidence of that crime is inside", "Anytime they arrest anyone in the car", "Never, an arrest never allows a car search", "Only after they get a separate warrant every time"],
+      correct: 0,
+      hint: "The old rule let them search almost automatically. The Court narrowed it to two specific reasons.",
+      optionExplanations: [null, "Automatic search on any arrest is exactly the broad rule Gant cut back.", "'Never' is too strong. Gant kept two situations where the search is allowed.", "Gant doesn't require a fresh warrant every time. It defines when the arrest itself justifies the search."],
+      principle: "Arizona v. Gant (2009) narrowed car searches after arrest. Police can search the passenger compartment only if the arrested person could actually reach it at the time, or if it's reasonable to believe evidence of the crime they're being arrested for is inside. Once you're cuffed in the back of a patrol car for something like an old warrant, that automatic-search logic usually disappears.",
+      keyPhrase: { quote: "Reachable, or evidence of that crime.", gloss: "Gant's two narrow reasons for a car search after arrest." },
+      scenario: { setup: "You've been arrested and secured, and officers move toward your car.", lines: [{ label: "GANT ASKS", text: "Could you reach the car? Is evidence of this crime likely inside?" }, { label: "IF NEITHER", text: "The search generally isn't justified by the arrest alone." }], note: "You can state that you don't consent. That preserves the challenge for your lawyer later." }
+    },
+    {
+      q: "Police get your consent to search your bag, then keep going through your locked phone inside it. What's the key limit on consent searches?",
+      options: ["A search can't exceed the scope of what you agreed to", "Consent to one thing means consent to everything you own", "Consent can never be taken back once given", "Consent lets them search other people's belongings too"],
+      correct: 0,
+      hint: "Consent is like a door you open only so wide. Did agreeing to the bag say anything about the phone?",
+      optionExplanations: [null, "Agreeing to one item isn't blanket permission. Each thing has its own expectation of privacy.", "You can actually limit or withdraw consent. It's not a one-way switch.", "Your consent covers your things, not someone else's separate private property."],
+      principle: "A consent search is limited to what a reasonable person would understand you agreed to. Saying yes to a bag search isn't a yes to cracking open a locked phone inside it, especially since Riley v. California treats phones as needing their own warrant. You can also set limits ('you can look in the front pocket only') or withdraw consent partway through.",
+      keyPhrase: { quote: "You set the scope.", gloss: "Consent covers only what you agreed to, and you can narrow or withdraw it." },
+      scenario: { setup: "You agreed to let an officer look in your bag, and they pull out your phone.", lines: [{ label: "YOU", text: "I consented to the bag, not my phone. I don't consent to that." }, { label: "WHY IT MATTERS", text: "A phone generally needs its own warrant (Riley)." }], note: "Naming the limit out loud helps a lawyer challenge anything found beyond it." }
+    },
+    {
+      q: "A friend or roommate lets police into a shared apartment. Whose spaces can that consent cover?",
+      options: ["Shared areas, but generally not your separate private room", "The entire apartment including your locked room", "Nothing, roommates can never consent", "Only the roommate's bedroom and nowhere else"],
+      correct: 0,
+      hint: "Someone can open the doors to spaces they share and control. Can they open a door that's only yours?",
+      optionExplanations: [null, "A roommate's consent usually doesn't reach into your locked, private-to-you room.", "Roommates can consent to areas they share and control. That part is valid.", "It's not limited to just their room. Shared common areas are covered too."],
+      principle: "A person can consent to a search of areas they share and control (common authority). A roommate can let officers into shared living spaces, but generally can't authorize a search of your separate, private bedroom that they don't use or control. The line follows who actually has authority over the space, not just who happens to hold a key to the front door.",
+      keyPhrase: { quote: "They can only open their own doors.", gloss: "Shared areas yes; your separate private room generally no." },
+      scenario: { setup: "Your roommate opens the door and waves officers inside.", lines: [{ label: "COVERED", text: "The living room and kitchen you both share." }, { label: "USUALLY NOT", text: "Your separate, private bedroom they don't control." }], note: "If it's genuinely your private space, a roommate's yes generally doesn't reach it." }
+    },
+    {
+      q: "In Michigan, if you're carrying a concealed pistol with a CPL and get pulled over, what does the law require?",
+      options: ["Immediately tell the officer you're carrying and show your CPL and ID", "Wait until the officer asks whether you have a weapon", "Say nothing about the pistol at all", "Only mention it if you get arrested"],
+      correct: 0,
+      hint: "The keyword in the statute is 'immediately.' That points to who has to speak up first.",
+      optionExplanations: [null, "Waiting to be asked misses the 'immediately' requirement built into the law.", "Staying silent about the pistol conflicts with the specific CPL disclosure duty.", "Waiting until arrest is far too late. The duty applies at the start of the stop."],
+      principle: "This is a real exception to the usual 'you can stay silent' guidance. Under Michigan's CPL law (MCL 28.425f), a concealed pistol license holder who is carrying must immediately disclose that to a peace officer during a stop and show both the CPL and a state ID on request. 'Immediately' means you volunteer it up front. Failing to can bring a civil infraction, and repeated violations can escalate.",
+      keyPhrase: { quote: "Carrying? Say so immediately.", gloss: "Michigan CPL holders must disclose up front and show CPL plus ID." },
+      scenario: { setup: "You're a CPL holder carrying concealed when you get pulled over.", lines: [{ label: "YOU (RIGHT AWAY)", text: "Officer, I have a CPL and I'm carrying. Here's my license and ID." }, { label: "WHY", text: "Michigan law requires immediate disclosure, not waiting to be asked." }], note: "This is a rare spot where the law requires you to speak first, not stay silent." }
     }
   ],
   expert: []
