@@ -2318,7 +2318,11 @@ function RevealScreen(props) {
   const allSeen = seen.every(Boolean);
   const meta = R.cardMeta[current];
   const cardRead = seen[current] || dwellDone; // read-gate: dwell finished
-  const canAdvanceCard = cardRead; // advancing is independent of redeeming now
+  // Next is gated: on a scoring run you must redeem this card's point before advancing.
+  const pointOwed = scoring && !claimed[current];
+  const canAdvanceCard = cardRead && !pointOwed;
+  // for the final card, all points must be claimed before the result button shows.
+  const allClaimed = !scoring || claimed.every(Boolean);
   const yourLetter = selectedIdx != null ? ["A", "B", "C", "D"][selectedIdx] : null;
   const rightLetter = ["A", "B", "C", "D"][question.correct];
 
@@ -2415,10 +2419,10 @@ function RevealScreen(props) {
 
         c.jsxs("div", { style: { display: "flex", gap: 10, alignItems: "center", justifyContent: "center", flexWrap: "wrap" }, children: [
           c.jsx(Button, { onClick: () => go(current - 1), variant: "ghost", size: "sm", disabled: current === 0, style: { fontSize: 13 }, children: "\u2039 Prev" }),
-          // Redeem now lives inside the card. Nav is just Prev/Next again.
+          // Redeem lives inside the card; Next stays locked until this card's point is claimed.
           current < CARD_COUNT - 1
-            ? c.jsx(NextCardButton, { canAdvance: canAdvanceCard, scoring, onClick: () => go(current + 1) })
-            : (allSeen ? finalBtnEl : c.jsx(NextCardButton, { canAdvance: canAdvanceCard, scoring, label: "Almost\u2026", onClick: () => {} }))
+            ? c.jsx(NextCardButton, { canAdvance: canAdvanceCard, scoring, pointOwed, cardRead, onClick: () => go(current + 1) })
+            : ((allSeen && allClaimed) ? finalBtnEl : c.jsx(NextCardButton, { canAdvance: canAdvanceCard, scoring, pointOwed, cardRead, label: "Almost\u2026", onClick: () => {} }))
         ] }),
 
         !allSeen && c.jsx("button", { onClick: onSkipReview, style: { background: "transparent", border: "none", fontFamily: C.mono, fontSize: 11, letterSpacing: 2, color: u.textMuted, cursor: "pointer", textTransform: "uppercase", fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 3, padding: "2px 10px" }, children: scoring ? "Skip Review (no points) \u2192" : "Skip \u2192" })
@@ -2429,15 +2433,19 @@ function RevealScreen(props) {
   });
 }
 
-// Next-card button that shows a filling dwell bar until the read gate clears
-function NextCardButton({ canAdvance, onClick, label, scoring }) {
+// Next-card button. While the read-dwell runs it shows "Reading" with the fill
+// bar; once read but the point is still owed it prompts "Redeem first"; once the
+// point is claimed (or on a non-scoring run) it becomes an active Next.
+function NextCardButton({ canAdvance, onClick, label, scoring, pointOwed, cardRead }) {
+  const readingStill = !canAdvance && !cardRead;
+  const needsRedeem = !canAdvance && cardRead && pointOwed;
   return c.jsxs("button", {
     onClick: canAdvance ? onClick : undefined,
     disabled: !canAdvance,
     style: { position: "relative", overflow: "hidden", fontFamily: C.display, fontSize: 13, letterSpacing: 1.5, background: canAdvance ? u.surface : u.surfaceWarm, color: canAdvance ? u.text : u.textMuted, border: `2px solid ${u.outline}`, padding: "10px 22px", borderRadius: 8, cursor: canAdvance ? "pointer" : "default", textTransform: "uppercase", boxShadow: canAdvance ? U.sm : "none", minWidth: 140 },
     children: [
-      !canAdvance && c.jsx("span", { "aria-hidden": true, style: { position: "absolute", left: 0, top: 0, bottom: 0, background: u.brandSofter, animation: "ts-dwell-fill 2s linear forwards", zIndex: 0 } }),
-      c.jsx("span", { style: { position: "relative", zIndex: 1 }, children: canAdvance ? (label || "Next \u203A") : (scoring ? "Reading\u2026 +1 soon" : "Reading\u2026") })
+      readingStill && c.jsx("span", { "aria-hidden": true, style: { position: "absolute", left: 0, top: 0, bottom: 0, background: u.brandSofter, animation: "ts-dwell-fill 2s linear forwards", zIndex: 0 } }),
+      c.jsx("span", { style: { position: "relative", zIndex: 1 }, children: canAdvance ? (label || "Next \u203A") : (needsRedeem ? "Redeem \u2605 first" : "Reading\u2026") })
     ]
   });
 }
