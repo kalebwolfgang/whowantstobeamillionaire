@@ -130,6 +130,146 @@ const Wp = {
       principle: "The Fourth Amendment gives your home the strongest protection there is. Police generally need a warrant signed by a judge, or your consent, to come inside. Saying no to entry is completely legal and doesn't make you look guilty. Do it calmly through the door. If they enter anyway, don't physically resist; say you don't consent and let a lawyer sort it out. Your safety is the priority.",
       keyPhrase: { quote: "\"Do you have a warrant?\"", gloss: "Without one you can keep the door shut. Stay calm about it." },
       scenario: { setup: "An officer on your porch asks to step inside.", lines: [{ label: "OFFICER", text: "Mind if I come in to talk?" }, { label: "YOU (calm)", text: "I don't consent. Do you have a warrant?" }], note: "Saying no is your right. If they come in anyway, don't resist; challenge it later." }
+    },
+    {
+      q: "You're walking down the street in Michigan and an officer asks your name. Do you have to give it?",
+      options: ["Not just because they ask, unless they suspect a crime", "Yes, you always have to give your name to police", "Yes, or you can be arrested for hiding it", "Only if you're under 18"],
+      correct: 0,
+      hint: "Michigan is different from what TV shows. What has to be true before you owe them a name?",
+      optionExplanations: [null, "Many people think you must always give your name. In lots of states that's true, but not Michigan on the street.", "You can't be arrested just for not giving your name to police who lack a real reason to suspect you.", "Age isn't the rule here. It's about whether they have reasonable suspicion of a crime."],
+      principle: "Michigan is not a stop-and-identify state. On foot, if police don't have reasonable suspicion you committed a crime, you generally don't have to give your name. That's genuinely different from many other states people see on TV. Knowing the right is one thing; using it safely is another, so stay calm, keep it polite, and weigh whether refusing is worth escalating the moment.",
+      keyPhrase: { quote: "Michigan doesn't force your name.", gloss: "No stop-and-identify law here, unless there's real suspicion." },
+      scenario: { setup: "You're walking home and an officer asks who you are.", lines: [{ label: "OFFICER", text: "What's your name?" }, { label: "YOU (calm)", text: "Am I free to leave, or am I being detained?" }], note: "Different states have different rules. In Michigan, on foot, a name usually isn't required." }
+    },
+    {
+      q: "Your cousin in another state says you always have to show ID to police. Is that true in Michigan?",
+      options: ["Not always here; Michigan's rules are different from many states", "Yes, it's the same law in every state", "Yes, federal law makes it the same everywhere", "Only big cities have different rules"],
+      correct: 0,
+      hint: "ID rules are set state by state. What works in one place can be wrong next door.",
+      optionExplanations: [null, "ID rules aren't the same everywhere. Each state sets its own, and Michigan doesn't have a general one.", "There's no single federal ID-on-demand law for street stops. States differ, and Michigan is on the lighter side.", "It's a state rule, not a city one. The difference is Michigan versus other states, not big city versus small town."],
+      principle: "Stop-and-identify rules are set state by state, and Michigan does not have a general one. That means advice from a relative in another state can be confidently wrong here. Being confidently wrong is risky, because you might refuse when you shouldn't or comply when you didn't have to. Learn your own state's rule, and either way, stay calm in the moment.",
+      keyPhrase: { quote: "ID rules are state by state.", gloss: "What's true elsewhere may not be true in Michigan." },
+      scenario: { setup: "You're comparing notes with family from out of state.", lines: [{ label: "COUSIN", text: "You always have to show ID, that's the law." }, { label: "TRUTH", text: "Not generally in Michigan, on foot, without suspicion." }], note: "About two dozen states have stop-and-identify laws. Michigan is not one of them." }
+    },
+    {
+      q: "An officer is asking you questions and you're not sure you have to stay. What's the smartest thing to say?",
+      options: ["\"Am I free to leave?\"", "\"I don't have to tell you anything, ever.\"", "\"You can't talk to me without a reason.\"", "\"I'll answer if you tell me why first.\""],
+      correct: 0,
+      hint: "You want one clean fact: can you walk, or not? Which line gets it without starting a fight?",
+      optionExplanations: [null, "That's a challenge, not a question, and it can escalate things. Ask calmly whether you can leave instead.", "Arguing about whether they can talk to you starts a fight. A calm question gets you information.", "Bargaining invites back-and-forth. Just ask plainly if you're free to go."],
+      principle: "Asking 'am I free to leave?' calmly is the single best move when you're unsure. It tells you which situation you're in without arguing. If they say yes, you can go. If they say no, you're detained, so stay, stay calm, and save any dispute for later. A calm question keeps the encounter from heating up.",
+      keyPhrase: { quote: "\"Am I free to leave?\"", gloss: "The calm question that tells you if you can walk." },
+      scenario: { setup: "The questions keep coming and you want to know where you stand.", lines: [{ label: "YOU (calm)", text: "Am I free to leave?" }, { label: "IF YES", text: "You can go, calmly." }, { label: "IF NO", text: "You're detained. Stay calm, stay silent." }], note: "One calm question, either answer, keeps you safer than arguing." }
+    },
+    {
+      q: "An officer asks to search your bag and you know it's clean. What's the smart move?",
+      options: ["You can still say you don't consent; it's your right", "Let them, since you have nothing to hide", "Let them, or it looks like you're guilty", "Open it yourself to speed things up"],
+      correct: 0,
+      hint: "Saying no isn't about hiding anything. Why might you decline even when you're clean?",
+      optionExplanations: [null, "The 'nothing to hide' idea gets people to give up a right for no reason. Declining isn't about hiding; it's your right, and it protects you.", "Refusing a search is normal and legal. It can't be used to say you're guilty.", "Opening it yourself is consenting. You can keep it closed and calmly decline."],
+      principle: "You can refuse consent to a search even when you have nothing to hide, and refusing is not evidence of guilt. The 'nothing to hide' belief is one of the most common reasons people give up a protection they had. Saying no calmly, once, keeps your rights intact for a lawyer to use later. Don't physically block or grab your bag; just state that you don't consent.",
+      keyPhrase: { quote: "\"I don't consent to searches.\"", gloss: "Saying no isn't hiding. It's your right, clean bag or not." },
+      scenario: { setup: "An officer points at your bag and asks to look.", lines: [{ label: "OFFICER", text: "Mind if I take a look?" }, { label: "YOU (calm)", text: "I don't consent to a search." }], note: "If they search anyway, don't resist. Your calm 'no' helps later." }
+    },
+    {
+      q: "Can police use the fact that you refused a search to say you're guilty?",
+      options: ["No, refusing a search can't be used as proof of guilt", "Yes, only guilty people say no", "Yes, refusing counts against you in court", "Only if you refuse in an angry way"],
+      correct: 0,
+      hint: "If saying no could prove guilt, the right to say no would be worthless. So what must be true?",
+      optionExplanations: [null, "The 'only guilty people refuse' idea is exactly the myth that makes people give up the right. It's false.", "Your refusal isn't evidence against you. A right you get punished for using wouldn't be a right.", "Tone doesn't turn a lawful 'no' into proof of guilt. Just keep it calm to stay safe."],
+      principle: "Refusing a search cannot be used as evidence that you're guilty. If it could, the right to refuse would mean nothing. This is worth knowing because the fear of 'looking guilty' is the main reason people consent to searches they could have declined. Say no calmly and it stays your protected choice. Keeping a level tone isn't about the law; it's about staying safe.",
+      keyPhrase: { quote: "Saying no isn't proof of guilt.", gloss: "A right you'd be punished for using wouldn't be a right." },
+      scenario: { setup: "You worry that declining will look bad.", lines: [{ label: "THE FEAR", text: "Refusing makes me look guilty." }, { label: "THE TRUTH", text: "Refusal can't be used as evidence of guilt." }], note: "Decline calmly. It's a protected choice, not an admission." }
+    },
+    {
+      q: "An officer walks up and starts chatting with no sign you did anything. What can you do?",
+      options: ["Politely decline to answer and walk away", "Nothing, you have to answer once they start", "Answer everything so you don't seem rude", "Wait until they say you can go"],
+      correct: 0,
+      hint: "If they have no suspicion, this is the lightest kind of contact. What does that let you do?",
+      optionExplanations: [null, "A big myth: that any officer talking to you means you're being held. With no suspicion, you can decline and go.", "Politeness isn't a legal duty to answer. You can be respectful and still decline.", "You don't have to wait for permission in a consensual chat. That's what makes it consensual."],
+      principle: "When an officer talks to you with no suspicion, that's a consensual encounter: you can decline to answer and walk away. Most people treat every police contact as a detention they're stuck in, but that's not the case. You can find out which situation you're in by asking calmly if you're free to leave. Stay polite and calm; you can exercise the right without being confrontational.",
+      keyPhrase: { quote: "No suspicion means you can go.", gloss: "A consensual chat isn't a detention. You can decline." },
+      scenario: { setup: "An officer strikes up a conversation for no clear reason.", lines: [{ label: "YOU (calm)", text: "Am I free to leave?" }, { label: "IF YES", text: "You can decline to answer and walk on." }], note: "Not every police contact is a detention. Ask calmly to find out." }
+    },
+    {
+      q: "What does an officer need to actually arrest you?",
+      options: ["Probable cause, a higher bar than a brief stop needs", "Just a hunch that you might have done something", "Nothing, they can arrest anyone anytime", "Only your refusal to answer questions"],
+      correct: 0,
+      hint: "An arrest is the most serious tier, so it needs the strongest reason. More than a stop needs.",
+      optionExplanations: [null, "A hunch is too weak for an arrest. That's closer to what a brief stop needs, and even that needs specific facts.", "They can't arrest anyone anytime. An arrest needs probable cause, a real, higher standard.", "Refusing to answer questions isn't grounds for arrest by itself. Silence is your right."],
+      principle: "An arrest requires probable cause, a higher bar than the reasonable suspicion needed for a brief stop. Probable cause means facts strong enough to reasonably believe you committed a crime. Knowing this tells you how serious the situation is. But remember: even an arrest you believe is wrong is not fought on the street. Comply, stay calm, keep your hands visible, and challenge it later with a lawyer.",
+      keyPhrase: { quote: "Arrest needs probable cause.", gloss: "A higher bar than a brief stop. Fight a bad one in court." },
+      scenario: { setup: "You're being taken into custody.", lines: [{ label: "ARREST", text: "Needs probable cause, the higher bar." }, { label: "YOU", text: "Stay calm. Ask for a lawyer. Don't resist." }], note: "Even a wrong arrest is challenged later, not on the street." }
+    },
+    {
+      q: "On TV, police read rights the second they cuff someone. Is that when Miranda is actually required?",
+      options: ["No, only before they question you while you're in custody", "Yes, they must read it the moment cuffs go on", "Yes, or the arrest doesn't count", "Only if you ask them to read it"],
+      correct: 0,
+      hint: "Miranda protects you from pressured questioning. So what has to be happening, not just the cuffs?",
+      optionExplanations: [null, "The handcuffs myth is huge, straight from TV. Cuffs alone don't trigger Miranda. Questioning in custody does.", "An arrest is still valid even if no one reads Miranda. Miranda is about questioning, not the arrest itself.", "You don't have to ask for it. It's required only before custodial questioning, whether you ask or not."],
+      principle: "Miranda warnings are required only before custodial interrogation: you have to be both in custody and being questioned. Police are not required to read them the instant they arrest you, or at all if they don't question you. TV makes people think the cuffs trigger it. What actually matters is the questioning. Knowing this keeps you from assuming your rights were 'violated' when they weren't, and from missing when they actually are.",
+      keyPhrase: { quote: "Custody plus questioning.", gloss: "Not the cuffs. Miranda is about being questioned in custody." },
+      scenario: { setup: "You're arrested and no one reads you anything.", lines: [{ label: "NOT A TRIGGER", text: "Handcuffs by themselves." }, { label: "TRIGGER", text: "Being questioned while in custody." }], note: "If they don't question you, they may never need to read Miranda." }
+    },
+    {
+      q: "You're being questioned in custody and want it to stop. What works best?",
+      options: ["Clearly say you're staying silent and want a lawyer", "Just stop talking and hope they quit", "Answer a little, then go quiet", "Wait for them to offer you a lawyer"],
+      correct: 0,
+      hint: "A right you use out loud works better than one you keep in your head. What makes it clear?",
+      optionExplanations: [null, "Just going quiet is weaker than saying it. Courts have said you generally need to clearly invoke the right.", "A little answering can still be used against you, and it muddies your invocation. Say it clearly and stop.", "They usually won't offer. You have to ask clearly for a lawyer."],
+      principle: "To stop custodial questioning, clearly say you're staying silent and that you want a lawyer, then stop answering. Just going quiet is weaker, and courts have said an unclear invocation may not count. Saying it plainly and calmly is the switch. You don't have to argue or explain; a short, clear statement does the work, and then silence protects you.",
+      keyPhrase: { quote: "Say it clearly, then stop.", gloss: "Invoke silence and a lawyer out loud. Don't half-answer." },
+      scenario: { setup: "The questions keep coming and you want them to end.", lines: [{ label: "YOU (calm)", text: "I'm staying silent, and I want a lawyer." }, { label: "THEN", text: "Stop answering. Don't get drawn back in." }], note: "A clear statement is the switch. Silence keeps it on." }
+    },
+    {
+      q: "Is it legal to record police doing their job out in public?",
+      options: ["Yes, you have a First Amendment right to record them in public", "No, filming police is against the law", "Only news reporters can legally record police", "Only if the officers say it's okay"],
+      correct: 0,
+      hint: "Courts have treated this like press freedom for regular people. So who does the right belong to?",
+      optionExplanations: [null, "A widespread myth: that recording police is a crime. Courts across the country protect filming them in public.", "It isn't limited to reporters. Ordinary people have the same right to record in public.", "You don't need their permission. The right doesn't depend on the officers agreeing."],
+      principle: "You have a First Amendment right to record police doing their public duties in public. Courts across the country treat this as protected, basically press freedom for everyone, not just reporters. This applies whether you're a bystander or recording your own stop. The limit is about safety and interference, not permission. Keep back, don't get in the way, and don't make sudden moves.",
+      keyPhrase: { quote: "Recording police is protected.", gloss: "Public duties in public. Not just for reporters." },
+      scenario: { setup: "You see officers working and want to film.", lines: [{ label: "YOU CAN", text: "Record from a safe distance in public." }, { label: "LIMIT", text: "Don't interfere or crowd the scene." }], note: "Keep back and stay still. The right is real; interfering isn't protected." }
+    },
+    {
+      q: "Police knock and want to come in. Do you have to open the door?",
+      options: ["Generally no, not without a warrant signed by a judge", "Yes, you always have to open up for police", "Yes, or it counts as resisting", "Only if you're the one they're looking for"],
+      correct: 0,
+      hint: "Your home has the strongest protection there is. What forces the door open?",
+      optionExplanations: [null, "A common belief: that a knock means you must open up. Usually you don't, not without a judge's warrant or your consent.", "Not opening the door isn't resisting. You can talk through it and stay calm.", "Even if they're looking for you, the warrant question still decides whether they can enter."],
+      principle: "You generally don't have to open your door unless police have a warrant signed by a judge. Your home carries the strongest privacy protection in the law. You can talk calmly through a closed door and ask them to show the warrant first. If they force entry anyway, don't physically resist; say you don't consent, stay silent, and let a lawyer challenge it. Your safety comes before winning the doorway.",
+      keyPhrase: { quote: "No judge's warrant, no duty to open.", gloss: "Talk through the door. Don't resist if they force in." },
+      scenario: { setup: "There's a knock and police want to enter.", lines: [{ label: "YOU (calm)", text: "Do you have a warrant signed by a judge?" }, { label: "IF NO", text: "You can keep the door shut." }, { label: "IF THEY FORCE IN", text: "Don't resist. Say you don't consent." }], note: "Saying no isn't resisting. Safety comes before the doorway." }
+    },
+    {
+      q: "If you stay silent when police question you, can that silence be used to prove you're guilty?",
+      options: ["No, using your right to silence can't be treated as guilt", "Yes, staying quiet makes you look guilty in court", "Yes, only guilty people stay silent", "Only if you stay silent the whole time"],
+      correct: 0,
+      hint: "If using a right could prove guilt, it wouldn't really be a right. So what must be true?",
+      optionExplanations: [null, "The 'silence looks guilty' fear is exactly what makes people talk when they shouldn't. Using the right can't be treated as guilt.", "The 'only guilty people stay silent' idea is a myth. Innocent people use the right all the time, and it's protected.", "How long you stay silent doesn't change it. Properly invoked, your silence isn't evidence of guilt."],
+      principle: "Using your right to remain silent generally cannot be treated as evidence that you're guilty. If it could, the right would be worthless. The fear that silence 'looks guilty' is one of the main reasons people talk themselves into trouble. Invoke the right clearly and calmly, then let it protect you. Staying calm and polite while you do it also keeps the encounter safer.",
+      keyPhrase: { quote: "Silence isn't guilt.", gloss: "Using the right can't be turned into evidence against you." },
+      scenario: { setup: "You worry that not answering will look bad.", lines: [{ label: "THE FEAR", text: "Staying silent looks guilty." }, { label: "THE TRUTH", text: "Properly invoked, silence isn't evidence of guilt." }], note: "Invoke it clearly and calmly, then let it protect you." }
+    },
+    {
+      q: "You're just a bystander watching police work in public. Can you record it?",
+      options: ["Yes, bystanders can record police doing public duties", "No, only the person being stopped can record", "No, bystanders have to keep walking", "Only if you know the person being stopped"],
+      correct: 0,
+      hint: "The right protects documenting police in public. Does it require you to be involved?",
+      optionExplanations: [null, "Some think only the person involved can film. Bystanders have the right to record police in public too.", "You don't have to keep moving. You can stand at a safe distance and record.", "Knowing the person doesn't matter. Any bystander can record police doing public work."],
+      principle: "Bystanders have the right to record police performing their public duties in public, not just the people directly involved. You can stand at a safe distance and film. The limit is the same for everyone: don't interfere or crowd the scene, and follow lawful orders to step back while you keep recording from farther away. Keeping your distance protects both the footage and you.",
+      keyPhrase: { quote: "Bystanders can record too.", gloss: "You don't have to be involved to film police in public." },
+      scenario: { setup: "You come across officers making an arrest.", lines: [{ label: "YOU CAN", text: "Record from a safe distance as a bystander." }, { label: "LIMIT", text: "Don't crowd or interfere." }], note: "Keep back. The right is real; interfering isn't protected." }
+    },
+    {
+      q: "Police push into your home even though you said no and saw no warrant. What's the safe move?",
+      options: ["Don't physically resist; say you don't consent and challenge it later", "Physically block them, since they had no warrant", "Fight back because your rights were violated", "Chase them out of the house"],
+      correct: 0,
+      hint: "Being right doesn't make the moment safe. Where do you actually win an illegal entry?",
+      optionExplanations: [null, "Many think a rights violation means they can physically stop it. It doesn't, and resisting is dangerous. Say no, then challenge it later.", "Fighting back can get you hurt and can add charges, even if the entry was wrong. Stay calm.", "Physically confronting officers is dangerous and can create new charges. The place to win is court."],
+      principle: "Even if police enter your home wrongly, without a warrant and against your 'no,' the safe move is not to physically resist. Resisting is dangerous and can add new charges, even when the entry was illegal. State clearly that you don't consent, stay calm, keep your hands visible, remember the details, and let a lawyer challenge the entry later. You might be completely right, and you still win it in court, not in the doorway.",
+      keyPhrase: { quote: "Don't fight the entry.", gloss: "Say you don't consent, stay safe, challenge it later." },
+      scenario: { setup: "Officers force their way in despite your refusal.", lines: [{ label: "YOU (calm)", text: "I don't consent to this." }, { label: "THEN", text: "Don't resist. Remember details. Call a lawyer." }], note: "Even a wrong entry is challenged in court, not the doorway." }
     }
   ],
   medium: [
@@ -232,6 +372,146 @@ const Wp = {
       principle: "Michigan is not a stop-and-identify state, so on foot you generally don't have to show ID just because an officer asks. That changes with reasonable suspicion of a crime, or if you're driving or lawfully arrested. Asking 'am I free to leave?' calmly tells you which situation you're in. Knowing you can decline is different from deciding it's safe to; refusing can escalate a stop, and that risk isn't equal across races. Read the moment and put your safety first.",
       keyPhrase: { quote: "Know the right, choose safety.", gloss: "Not required on foot without suspicion, but escalation is real." },
       scenario: { setup: "You're walking home and an officer asks for ID.", lines: [{ label: "YOU (calm)", text: "Am I free to leave, or am I being detained?" }, { label: "IF FREE", text: "You can decline and walk on, calmly." }], note: "Driving and lawful arrest are the clear exceptions. Otherwise, weigh safety." }
+    },
+    {
+      q: "You're the driver in a Michigan traffic stop. What ID do you have to show?",
+      options: ["Your license, registration, and proof of insurance", "Nothing, since Michigan has no stop-and-identify law", "Only your name spoken out loud", "Whatever the officer demands, or it's obstruction"],
+      correct: 0,
+      hint: "The 'no stop-and-identify' rule is for people on foot. Driving is a different deal.",
+      optionExplanations: [null, "People over-correct here. The no-ID rule is for pedestrians. Driving is a licensed privilege with real duties.", "Speaking your name isn't enough as a driver. You must produce the three documents.", "It's not unlimited. You owe the three driving documents, but you can still stay silent on questions."],
+      principle: "Driving is a licensed privilege, so a driver must show license, registration, and proof of insurance on request. This is one of the clear exceptions to Michigan's no-stop-and-identify rule. Hand the documents over, but announce before you reach for them and keep your hands visible; your right to stay silent on other questions still applies.",
+      keyPhrase: { quote: "Drivers show the three documents.", gloss: "License, registration, insurance. Then you can stay silent." },
+      scenario: { setup: "You're pulled over and the officer asks for your paperwork.", lines: [{ label: "YOU (calm)", text: "My license is in my wallet, I'm reaching for it now." }, { label: "OFFICER", text: "Where are you coming from?" }, { label: "YOU", text: "I'd rather not say." }], note: "Announce before you reach. The documents are required; conversation isn't." }
+    },
+    {
+      q: "You're a passenger in a car that's pulled over in Michigan. Do you have to show ID?",
+      options: ["Generally no, unless they suspect you of a separate crime", "Yes, everyone in the car must hand over ID", "Yes, because the driver got pulled over", "Only if you're sitting in the front seat"],
+      correct: 0,
+      hint: "The driver's duty comes from driving. You weren't driving. What changes that for you?",
+      optionExplanations: [null, "A common myth: that a stop pulls everyone's ID in. A passenger's rules are separate from the driver's.", "The driver's stop doesn't create an ID duty for passengers. That takes separate suspicion of you.", "Where you sit doesn't matter. What matters is whether there's suspicion you did something."],
+      principle: "A passenger generally doesn't have to identify themselves just because the driver was stopped. That takes separate, specific suspicion that the passenger committed a crime. You can calmly ask if you're free to leave. As always, knowing you can decline is different from deciding it's safe to in the moment, so read the situation and put your safety first.",
+      keyPhrase: { quote: "The stop is the driver's, not yours.", gloss: "A passenger's ID isn't owed without separate suspicion." },
+      scenario: { setup: "The car you're riding in gets pulled over.", lines: [{ label: "OFFICER", text: "ID from everyone." }, { label: "YOU (calm)", text: "Am I free to leave?" }], note: "You have the right to decline. You also have the right to choose calm. Both are real." }
+    },
+    {
+      q: "What has to be true before Michigan police can require your name during a street stop?",
+      options: ["They need reasonable suspicion you committed a crime", "Nothing, they can require it anytime", "They just have to be in uniform", "You have to be near where a crime happened, that's enough"],
+      correct: 0,
+      hint: "It's the same bar that lets them stop you at all. A hunch or a location isn't enough.",
+      optionExplanations: [null, "They can't require it anytime. Without reasonable suspicion, a name request on the street isn't a requirement.", "A uniform doesn't create the power. Reasonable suspicion of a crime does.", "Just being near a crime scene isn't automatically reasonable suspicion about you specifically."],
+      principle: "Even where identifying yourself could matter, it starts with reasonable suspicion: specific facts suggesting you committed a crime, not a hunch, not just your location. Without that, a street name-request in Michigan generally isn't a requirement. Asking 'am I being detained?' calmly helps you learn whether that bar has been met. Whatever the answer, keep it calm.",
+      keyPhrase: { quote: "Reasonable suspicion comes first.", gloss: "Specific facts about you, not a hunch or a location." },
+      scenario: { setup: "An officer stops you and wants your name.", lines: [{ label: "YOU (calm)", text: "Am I being detained, or am I free to go?" }, { label: "THE ANSWER", text: "Tells you if they've met the bar to hold you." }], note: "Reasonable suspicion is specific facts, not a feeling or a neighborhood." }
+    },
+    {
+      q: "Do police always need a warrant signed by a judge before they can search anything?",
+      options: ["No, there are real exceptions like probable cause or plain view", "Yes, no warrant means no search, ever", "Yes, unless you're already in jail", "No, they can search anything anytime they want"],
+      correct: 0,
+      hint: "The warrant is the rule, but the law carved out some specific exceptions. It's in between the two extremes.",
+      optionExplanations: [null, "This over-corrects. A warrant is the default, but exceptions exist, so 'never without a warrant' is a myth.", "Being in jail isn't the dividing line. The exceptions are things like probable cause, plain view, and arrest.", "It's also not anything-goes. The exceptions are specific, not unlimited. Your consent still matters."],
+      principle: "A warrant is the general rule, but the law allows searches without one in specific situations: probable cause, plain view, a search connected to a lawful arrest, and the automobile exception. So 'they can never search without a warrant' is false, and so is 'they can search anything.' The truth is in between. Either way, you can still calmly say you don't consent, which preserves a challenge later.",
+      keyPhrase: { quote: "Warrant is the rule, with exceptions.", gloss: "Probable cause, plain view, arrest, cars. Not unlimited." },
+      scenario: { setup: "You're wondering when a search is even allowed.", lines: [{ label: "DEFAULT", text: "A warrant from a judge." }, { label: "EXCEPTIONS", text: "Probable cause, plain view, arrest, cars." }], note: "You can say 'I don't consent' either way; it preserves your challenge." }
+    },
+    {
+      q: "An officer says \"I can just get a warrant anyway, so you might as well let me search.\" What's true?",
+      options: ["You can still decline; make them actually get the warrant", "You should consent, since a warrant is coming regardless", "Consent, because refusing is illegal once they say that", "It doesn't matter, the result is the same either way"],
+      correct: 0,
+      hint: "Saying they'll get a warrant isn't the same as having one. What do you make them do?",
+      optionExplanations: [null, "This is a common pressure tactic. If they truly could get a warrant, let them. You don't have to hand over the right.", "Refusing is never illegal just because they claim a warrant is coming. Declining is your right.", "It's not the same. If you consent, you gave up the search fight. If they get a warrant, a judge reviewed it first."],
+      principle: "Officers are allowed to say they'll 'just get a warrant' to get you to agree. But saying it isn't having it. If they really can get one, that's fine, let them, because then a neutral judge reviewed it. If you consent instead, you gave up that check for nothing. Decline calmly, once, and don't argue further; let the process play out.",
+      keyPhrase: { quote: "A promise isn't a warrant.", gloss: "Make them get it. Consenting gives up the judge's check." },
+      scenario: { setup: "The officer pressures you by saying a warrant is easy.", lines: [{ label: "OFFICER", text: "I'll just get a warrant anyway." }, { label: "YOU (calm)", text: "Then I'll wait. I don't consent." }], note: "If a warrant really is coming, letting them get it costs you nothing." }
+    },
+    {
+      q: "What does an officer need before they can detain you, meaning hold you so you can't leave?",
+      options: ["Reasonable suspicion of a specific crime", "Nothing, they can hold anyone for any reason", "Just a feeling that something's off", "Permission from their supervisor"],
+      correct: 0,
+      hint: "It's a real, named legal bar. A vague feeling isn't quite enough.",
+      optionExplanations: [null, "The idea that police can hold anyone for any reason is a common fear, but detentions need reasonable suspicion.", "A raw feeling isn't enough. Reasonable suspicion means specific facts they can point to.", "It's not about a supervisor's okay. It's about having specific facts suggesting a crime."],
+      principle: "To detain you, an officer needs reasonable suspicion: specific facts suggesting you're involved in a crime, not a hunch and not 'any reason.' A detention (a Terry stop) means you're not free to leave, but you're not under arrest. Knowing this helps you tell which tier you're in. Whatever the situation, the safe move is the same: stay calm, comply, and challenge any overreach later.",
+      keyPhrase: { quote: "Detention needs reasonable suspicion.", gloss: "Specific facts about a crime, not a hunch or 'any reason.'" },
+      scenario: { setup: "An officer is keeping you from leaving.", lines: [{ label: "DETENTION", text: "Needs reasonable suspicion of a crime." }, { label: "YOU (calm)", text: "Am I being detained?" }], note: "A detention holds you briefly; it isn't an arrest. Rights still apply." }
+    },
+    {
+      q: "Is looking nervous, or being in a high-crime area, enough by itself for police to detain you?",
+      options: ["No, that alone generally isn't reasonable suspicion", "Yes, nervousness is proof enough", "Yes, being in a bad area is enough on its own", "Only if you're also young"],
+      correct: 0,
+      hint: "Reasonable suspicion needs specific facts about you. Are a feeling and a location specific enough?",
+      optionExplanations: [null, "People think nerves give police a reason. Being nervous alone generally isn't reasonable suspicion.", "A neighborhood's reputation isn't a fact about you. Location alone generally isn't enough to detain you.", "Your age isn't the missing piece. It still takes specific facts suggesting you did something."],
+      principle: "Being nervous, or standing in a high-crime area, generally isn't enough by itself to justify detaining you. Reasonable suspicion has to be built on specific facts about you and your conduct, not a feeling or a neighborhood's reputation. Courts have pushed back on stops built only on those things. Still, this is decided later in court, not argued on the street, so stay calm in the moment and raise it afterward.",
+      keyPhrase: { quote: "Nerves and location aren't enough.", gloss: "Reasonable suspicion needs specific facts about you." },
+      scenario: { setup: "You're told you 'looked nervous' in a 'bad area.'", lines: [{ label: "NOT ENOUGH", text: "Nervousness or the neighborhood, alone." }, { label: "LATER", text: "A lawyer can challenge a stop built on only that." }], note: "This is a court argument, not a roadside one. Stay calm now." }
+    },
+    {
+      q: "If police forget to read Miranda before questioning you in custody, what usually happens?",
+      options: ["Those statements may be thrown out, but the case isn't automatically dismissed", "The whole case gets dismissed automatically", "Nothing, Miranda doesn't really matter", "You automatically win and can sue"],
+      correct: 0,
+      hint: "The remedy is about the statements they got, not the entire case. What specifically gets excluded?",
+      optionExplanations: [null, "The 'case gets thrown out' belief is one of the most common myths. The remedy is usually just suppressing those statements.", "It does matter. Statements from a Miranda violation can be suppressed, which can weaken a case.", "A Miranda slip doesn't automatically win your case or create a lawsuit. It affects those statements."],
+      principle: "If police question you in custody without Miranda, the usual remedy is that those specific statements can be suppressed, kept out of evidence. It does not automatically dismiss the whole case; other evidence can still be used. The 'they forgot to read my rights so my case is dropped' belief comes from TV and sets people up for disappointment. The real value of Miranda is knowing to stay silent and ask for a lawyer.",
+      keyPhrase: { quote: "Suppressed, not dismissed.", gloss: "A Miranda slip can exclude statements, not end the case." },
+      scenario: { setup: "You realize they questioned you without a warning.", lines: [{ label: "MYTH", text: "The case gets thrown out." }, { label: "REALITY", text: "Those statements may be suppressed." }], note: "Other evidence can still be used. Silence protects you best." }
+    },
+    {
+      q: "After arrest, an officer asks your name and address to book you. Is that the kind of questioning Miranda covers?",
+      options: ["Generally no, routine booking questions usually aren't interrogation", "Yes, every question after arrest needs Miranda first", "No, because Miranda never applies after arrest", "Only if they write your answers down"],
+      correct: 0,
+      hint: "Miranda is about questions designed to get you to incriminate yourself. Is your address one of those?",
+      optionExplanations: [null, "People think every post-arrest question needs a warning. Routine booking (name, address) generally isn't interrogation.", "Miranda can apply after arrest, but only to interrogation, not basic booking details.", "Whether they write it down doesn't decide it. It's about whether the question seeks to incriminate you."],
+      principle: "Routine booking questions, like your name and address, generally are not the kind of interrogation Miranda covers, because they aren't designed to get you to incriminate yourself. So not every question after arrest needs a warning first. This matters because it helps you tell normal processing from actual questioning about the case, which is where staying silent and asking for a lawyer really counts.",
+      keyPhrase: { quote: "Booking isn't interrogation.", gloss: "Name and address are routine; case questions are different." },
+      scenario: { setup: "You're being booked and asked basic details.", lines: [{ label: "ROUTINE", text: "Name, address, date of birth." }, { label: "INTERROGATION", text: "Questions about the alleged crime." }], note: "Save your silence and lawyer request for case questions." }
+    },
+    {
+      q: "An officer tells you to stop filming, but you're back on the sidewalk not interfering. What's true?",
+      options: ["They generally can't order you to stop just for filming", "You must stop the second an officer tells you to", "You can only keep filming if you're silent", "You have to stop unless you're a journalist"],
+      correct: 0,
+      hint: "They can manage real interference, but can they ban filming just because they dislike it?",
+      optionExplanations: [null, "A common belief: that any order to stop is binding. If you're not interfering, disliking the camera isn't a lawful reason to make you stop.", "Being silent isn't required. You can keep filming as long as you're not interfering.", "The right isn't limited to journalists. Ordinary people keep it too."],
+      principle: "Officers can make you step back if you're genuinely interfering or creating a safety hazard, but they generally can't order you to stop recording just because they dislike being filmed. If you're lawfully present and not interfering, the right holds. That said, there's real personal risk in refusing an officer's order in the moment, so a common safe move is to step back as told and keep recording from farther away rather than argue.",
+      keyPhrase: { quote: "Filming isn't interfering.", gloss: "They can manage real interference, not ban the camera." },
+      scenario: { setup: "You're recording from a safe distance and told to stop.", lines: [{ label: "OFFICER", text: "Turn that off." }, { label: "SAFE MOVE", text: "Step back and keep recording from farther away." }], note: "The right is real, but you weigh the risk of refusing in the moment." }
+    },
+    {
+      q: "Can you record your OWN traffic stop or encounter, not just other people's?",
+      options: ["Yes, the right covers recording your own encounter too", "No, you can only film other people's stops", "No, recording your own stop is always illegal", "Only if a passenger does the filming, not you"],
+      correct: 0,
+      hint: "The right protects documenting police in public. Does it stop applying just because the stop is yours?",
+      optionExplanations: [null, "Some think the right only covers filming others. It also covers documenting your own encounter.", "Recording your own stop isn't automatically illegal. The public-recording right still applies.", "It doesn't matter who holds the phone. The right covers your own encounter."],
+      principle: "The right to record police covers your own encounter, not just other people's. You can document your own traffic stop or street stop. The same limits apply: don't interfere, keep your hands visible, and tell the officer what you're doing before you reach for your phone, since sudden movements during a stop are dangerous. Mounting the phone or setting it down in view can be safer than holding it up.",
+      keyPhrase: { quote: "You can film your own stop.", gloss: "The right isn't just for filming others." },
+      scenario: { setup: "You're pulled over and want a record of it.", lines: [{ label: "YOU (calm)", text: "I'm turning on my phone to record, it's in the cupholder." }, { label: "THEN", text: "Keep hands visible; don't reach suddenly." }], note: "Announce the move. A mounted or set-down phone avoids sudden reaches." }
+    },
+    {
+      q: "Police say they have a warrant but you can't see it. What can you ask?",
+      options: ["Ask them to slip it under the door or hold it to the window", "Nothing, you have to take their word for it", "Nothing, asking to see it is illegal", "Only your lawyer can ask to see it"],
+      correct: 0,
+      hint: "You don't have to open the door to read a piece of paper. How do you check it stays safe?",
+      optionExplanations: [null, "You don't have to just believe them. You can ask to read it without opening up.", "Asking to see a warrant isn't illegal. It's a reasonable thing to request.", "You can ask yourself. You don't need a lawyer present to request to see the warrant."],
+      principle: "You don't have to take their word that they have a warrant. You can calmly ask them to slip it under the door or hold it up to a window so you can read it, without opening the door, since opening it can count as consent. Check for a judge's signature and the right name or address. Staying calm and keeping the door shut while you verify is both your right and the safer move.",
+      keyPhrase: { quote: "Read it before you open.", gloss: "Under the door or at the window. Opening can be consent." },
+      scenario: { setup: "They claim a warrant but you haven't seen it.", lines: [{ label: "YOU (calm)", text: "Please slide it under the door so I can read it." }, { label: "CHECK", text: "Judge's signature, your name or address." }], note: "Opening the door can count as letting them in. Verify first." }
+    },
+    {
+      q: "Police are at your door with no warrant. Why might just opening the door be risky?",
+      options: ["Opening it or inviting them in can count as consenting to entry", "It doesn't matter, an open door changes nothing", "Because it's illegal to open your own door to police", "Because they can then arrest you for opening it"],
+      correct: 0,
+      hint: "Consent doesn't have to be spoken. What might your actions say for you?",
+      optionExplanations: [null, "People think talking at an open door is harmless. Opening up or inviting them in can be treated as consent to enter.", "It's not illegal to open your door. The point is that opening it can be read as consent.", "Opening the door isn't itself an arrestable act. The risk is that it can count as letting them in."],
+      principle: "Consent doesn't have to be spoken; your actions can show it. Opening the door wide, stepping aside, or inviting officers in can be treated as consenting to entry, which gives up the protection you had. That's why talking through a closed door, or stepping outside and closing it behind you, can protect you better. If you're not sure, keep the door shut, stay calm, and ask to see a warrant first.",
+      keyPhrase: { quote: "Your actions can be consent.", gloss: "Opening up can count as letting them in. Keep it shut." },
+      scenario: { setup: "You're deciding whether to open the door to talk.", lines: [{ label: "RISKY", text: "Opening wide or inviting them in." }, { label: "SAFER", text: "Talk through the door, or step out and close it." }], note: "Consent can be an action, not just a word. Keep the door shut." }
+    },
+    {
+      q: "Can police search your car without a warrant if they have a strong reason to think there's evidence inside?",
+      options: ["Yes, the 'automobile exception' allows it on probable cause", "No, cars always need a warrant like a house does", "No, they can never search a car without your yes", "Yes, they can search any car for any reason"],
+      correct: 0,
+      hint: "Cars move, so the law treats them differently from homes. What does that difference allow?",
+      optionExplanations: [null, "A common myth: that a car is protected like a house. Because cars move, police can search on probable cause without a warrant.", "It's not true that they can never search without your consent. Probable cause is enough for a car.", "It's also not anything-goes. They need probable cause, a real reason, not just any reason."],
+      principle: "Because cars can be driven away, the law treats them differently from homes. Under the automobile exception, police can search a vehicle without a warrant if they have probable cause to believe it contains evidence of a crime. So 'they always need a warrant for my car' is a myth, and so is 'they can search any car anytime.' They need a real reason. You can still calmly say you don't consent, which preserves a challenge if the reason was weak.",
+      keyPhrase: { quote: "Cars move, so the rule bends.", gloss: "Probable cause lets police search a car without a warrant." },
+      scenario: { setup: "Officers want to search your car during a stop.", lines: [{ label: "AUTOMOBILE EXCEPTION", text: "Probable cause, no warrant needed." }, { label: "YOU (calm)", text: "I don't consent to a search." }], note: "Saying 'no' preserves a challenge if their reason was thin." }
     }
   ],
   hard: [
@@ -334,6 +614,146 @@ const Wp = {
       principle: "This is a rare place where Michigan law requires you to speak first: a CPL holder who is carrying must immediately disclose it to the officer and show the CPL and a state ID on request (MCL 28.425f). Because a firearm is present, this is also the most safety-critical moment in any stop. Keep both hands on the wheel, say clearly and early that you have a CPL and are carrying, tell the officer where it is, and never reach toward it. Announce before you move, and follow every instruction exactly. Getting this right is about survival, not just the law.",
       keyPhrase: { quote: "Say it immediately, hands on the wheel.", gloss: "Disclose up front, don't reach, follow every instruction." },
       scenario: { setup: "You're a CPL holder carrying when you get pulled over.", lines: [{ label: "YOU (hands on wheel)", text: "Officer, I have a CPL and I'm carrying. It's on my right hip." }, { label: "THEN", text: "Wait for instructions. Don't reach for anything." }, { label: "MOVE", text: "Announce before every movement." }], note: "Disclosure is required immediately. With a gun present, calm hands save lives." }
+    },
+    {
+      q: "In Michigan, is refusing to give your name, by itself, the crime of 'obstruction'?",
+      options: ["No, refusing alone is generally not obstruction", "Yes, refusing to identify is always obstruction", "Yes, if the officer feels disrespected", "Only if you refuse more than once"],
+      correct: 0,
+      hint: "Obstruction usually needs more than just quietly declining. What would actually have to happen?",
+      optionExplanations: [null, "A widespread fear, but simply declining to give your name is generally not obstruction in Michigan.", "An officer's feelings don't create a crime. Obstruction needs actual interference, not hurt feelings.", "Repeating a lawful 'no' doesn't turn it into a crime. Declining is declining."],
+      principle: "In Michigan, quietly declining to give your name is generally not obstruction by itself. Obstruction usually involves actively interfering, lying to police, or physically resisting, not simply staying silent. That said, refusing can still escalate an encounter, and escalation carries real risk. The safe move is to know your right, stay calm, and decide in the moment whether using it is worth the tension.",
+      keyPhrase: { quote: "Silence isn't obstruction.", gloss: "Declining your name isn't a crime; interfering or lying is." },
+      scenario: { setup: "An officer warns that not answering is 'obstruction.'", lines: [{ label: "OFFICER", text: "Give me your name or that's obstruction." }, { label: "YOU (calm)", text: "Am I being detained?" }], note: "Declining alone generally isn't a crime, but staying calm keeps you safest." }
+    },
+    {
+      q: "In Michigan, if you carry a concealed pistol with a CPL and get stopped, what does the law require?",
+      options: ["Tell the officer immediately, keep hands visible, and show your CPL and ID", "Wait for them to ask about weapons", "Say nothing, since you can stay silent", "Only mention it if they search you"],
+      correct: 0,
+      hint: "The statute uses the word 'immediately.' And with a gun present, how you move matters as much as what you say.",
+      optionExplanations: [null, "Waiting to be asked misses the law's word: immediately. You disclose up front.", "This is the dangerous mix-up. The usual stay-silent advice does NOT apply to disclosing the gun.", "Waiting until a search is far too late, and with a firearm present, that's a serious safety risk."],
+      principle: "This is a rare place where Michigan law requires you to speak first. A CPL holder who is carrying must immediately disclose it and show the CPL and a state ID on request (MCL 28.425f). Because a gun is present, this is also the most safety-critical moment in any stop. Keep both hands on the wheel, say clearly and early that you have a CPL and are carrying, say where it is, and never reach toward it. Announce before every move.",
+      keyPhrase: { quote: "Say it immediately, hands on the wheel.", gloss: "Disclose up front, don't reach, follow every instruction." },
+      scenario: { setup: "You're a CPL holder carrying when you get pulled over.", lines: [{ label: "YOU (hands on wheel)", text: "Officer, I have a CPL and I'm carrying. It's on my right hip." }, { label: "THEN", text: "Wait for instructions. Don't reach." }, { label: "MOVE", text: "Announce before every movement." }], note: "Disclosure is required immediately. With a gun present, calm hands save lives." }
+    },
+    {
+      q: "During a stop, an officer pats down the outside of your clothes. How far does that let them go?",
+      options: ["Just a pat for weapons; not a full dig through pockets and bags", "All the way into every pocket and bag you have", "Anywhere, since you were stopped", "Nowhere, a pat-down is never allowed"],
+      correct: 0,
+      hint: "A frisk has a specific, narrow purpose. What are they actually allowed to be looking for?",
+      optionExplanations: [null, "People think a pat-down opens everything. It doesn't. A frisk is a limited outer-clothing check for weapons.", "Being stopped doesn't turn a frisk into a full search. That needs more, like probable cause or consent.", "A pat-down IS allowed on reasonable suspicion you're armed. It's just limited to weapons."],
+      principle: "A frisk is a limited pat-down of your outer clothing for weapons, allowed when an officer reasonably suspects you're armed and dangerous (Terry v. Ohio). It is narrower than a full search: it doesn't automatically let them dig through pockets and bags. If it goes further than a weapons pat, you can calmly say you don't consent to a search. Don't physically resist; state it and let a lawyer challenge the rest.",
+      keyPhrase: { quote: "A frisk is a weapons pat, not a dig.", gloss: "Outer clothing for weapons. A full search needs more." },
+      scenario: { setup: "The officer starts patting the outside of your jacket.", lines: [{ label: "ALLOWED", text: "A pat for weapons on reasonable suspicion." }, { label: "IF IT GOES FURTHER", text: "Say calmly: I don't consent to a search." }], note: "State the limit once. Don't grab their hands; let a lawyer follow up." }
+    },
+    {
+      q: "If you say yes to a search and they find something, can it just get thrown out later?",
+      options: ["Usually no; consenting can waive the protection you had", "Yes, anything found always gets thrown out anyway", "Yes, if you change your mind afterward", "Only if you were nervous when you said yes"],
+      correct: 0,
+      hint: "Consent is powerful. Once you open that door, what happens to the challenge you could have made?",
+      optionExplanations: [null, "A dangerous myth: that a search can always be undone later. Consenting can waive the very challenge you'd need.", "Changing your mind after they've searched usually doesn't undo a search you agreed to.", "Being nervous doesn't automatically undo consent. That's why the calm 'no' up front matters so much."],
+      principle: "Consent is powerful and often can't be taken back after the fact. If you agree to a search, you may waive the challenge a lawyer could have made if you'd refused. That's why the clear, calm 'I don't consent' up front matters so much: it keeps your options open. You can also set limits before agreeing, or withdraw consent before they act, but once they've searched on your yes, it's hard to undo.",
+      keyPhrase: { quote: "Yes can't always be undone.", gloss: "Consenting may waive the challenge you'd otherwise have." },
+      scenario: { setup: "You're tempted to just say yes to get it over with.", lines: [{ label: "IF YOU CONSENT", text: "You may give up the fight over the search." }, { label: "IF YOU DECLINE", text: "A lawyer can challenge it later." }], note: "The calm 'no' up front is what preserves your options." }
+    },
+    {
+      q: "Does asking \"Am I free to leave?\" make you look guilty?",
+      options: ["No, it's a smart, neutral question anyone can ask", "Yes, only guilty people ask that", "Yes, it annoys police and counts against you", "Only if you ask before they finish talking"],
+      correct: 0,
+      hint: "This question just gets you information. Does getting information imply anything about guilt?",
+      optionExplanations: [null, "The 'only guilty people ask' idea keeps people from using a useful question. Anyone can ask it.", "Whether it annoys an officer doesn't make it evidence. It's a lawful, neutral question.", "Timing doesn't turn a neutral question into guilt. Just ask it calmly."],
+      principle: "Asking 'am I free to leave?' doesn't make you look guilty; it's a neutral question that gets you the one fact you need. The worry that it seems suspicious is exactly what stops people from using it, which leaves them unsure whether they can walk away. Ask it calmly and respectfully. It isn't evidence of anything, and it helps you make a safe, informed choice.",
+      keyPhrase: { quote: "Asking isn't admitting.", gloss: "It's a neutral question, not a sign of guilt." },
+      scenario: { setup: "You hesitate to ask because you don't want to seem guilty.", lines: [{ label: "THE WORRY", text: "Asking makes me look guilty." }, { label: "THE TRUTH", text: "It's a neutral question that just gets you facts." }], note: "Ask calmly. It tells you which situation you're in, nothing more." }
+    },
+    {
+      q: "You blurt something out without being asked, before any Miranda warning. Can it be used?",
+      options: ["Yes, statements you volunteer can be used even without Miranda", "No, nothing counts until they read your rights", "No, only written statements count", "Only if a second officer heard it too"],
+      correct: 0,
+      hint: "Miranda covers answers to questioning. What about things you say when nobody asked?",
+      optionExplanations: [null, "A big misunderstanding: that nothing counts pre-Miranda. Things you volunteer, not in response to questioning, can be used.", "Spoken statements count too. There's no rule that only written ones matter.", "It doesn't take two officers. One hearing you volunteer something is enough."],
+      principle: "Miranda covers answers to police questioning while you're in custody. It does not protect things you volunteer on your own, so a statement you blurt out without being asked can generally be used against you, even before any warning. This is why the safest habit in any encounter is to keep quiet and let your words be about invoking your rights, not filling silence or explaining yourself.",
+      keyPhrase: { quote: "Volunteered words still count.", gloss: "Miranda covers questioning, not things you say on your own." },
+      scenario: { setup: "Waiting in the back of a patrol car, you start talking.", lines: [{ label: "MIRANDA COVERS", text: "Answers to their questioning." }, { label: "NOT COVERED", text: "Things you say on your own, unprompted." }], note: "The safe habit: stay quiet unless you're invoking a right." }
+    },
+    {
+      q: "Police take your phone during an arrest. Can they scroll through it and delete your video?",
+      options: ["Generally no; they need a warrant to search it and can't force deletion", "Yes, once they hold it they can look through everything", "Yes, they can delete anything they don't like", "Only if the video shows them clearly"],
+      correct: 0,
+      hint: "Even if they lawfully hold the phone, what's inside it got special protection from the Supreme Court.",
+      optionExplanations: [null, "People assume holding the phone means reading it. Riley v. California says the contents generally need their own warrant.", "Forcing you to delete footage isn't allowed. They can't destroy your recording.", "What the video shows doesn't change the rule. The contents are protected either way."],
+      principle: "Even if police lawfully take your phone during an arrest, they generally can't search its contents without a warrant (Riley v. California), and they can't force you to delete footage. Seizing the device and searching what's inside are two different things. If this happens, don't physically fight over the phone; say clearly that you don't consent to a search, and let a lawyer challenge anything improper later.",
+      keyPhrase: { quote: "Holding it isn't reading it.", gloss: "Phone contents need a warrant. They can't force deletion." },
+      scenario: { setup: "During an arrest an officer takes your phone.", lines: [{ label: "THEY CAN", text: "Hold the device as part of the arrest." }, { label: "THEY GENERALLY CAN'T", text: "Search inside it without a warrant, or delete video." }], note: "Say you don't consent. Don't grab the phone; let a lawyer follow up." }
+    },
+    {
+      q: "Officers say they have a warrant. What kind actually lets them into your home?",
+      options: ["A search or arrest warrant signed by a judge, with the right details", "Any document with the word 'warrant' on it", "An ICE or administrative warrant", "A warrant an officer signed themselves"],
+      correct: 0,
+      hint: "The magic isn't the word 'warrant.' It's who reviewed and signed it.",
+      optionExplanations: [null, "Just seeing 'warrant' isn't enough. It has to be judge-signed with the right name or place.", "An ICE or administrative warrant is signed by an officer, not a judge, and doesn't authorize home entry by itself.", "An officer's own signature makes it administrative. That generally can't force entry into your home."],
+      principle: "Only a warrant signed by a judge, a search warrant for the listed place and items, or an arrest warrant for a person believed to be inside, authorizes entry into your home. An ICE detainer or administrative removal order is signed by an officer, not a judge, and does not authorize entry without your consent. Ask them to slip it under the door or hold it to the window so you can check who signed it. If they enter anyway, don't resist; challenge it later.",
+      keyPhrase: { quote: "A judge's signature is the key.", gloss: "Search or arrest warrant, judge-signed. Not administrative." },
+      scenario: { setup: "Agents hold up a paper and demand entry.", lines: [{ label: "ASK", text: "Slide it under the door to read." }, { label: "LOOK FOR", text: "A judge's signature and your name or address." }, { label: "IF ADMINISTRATIVE", text: "It doesn't authorize entry. Don't consent." }], note: "Check the signature. Your safety comes before the doorway." }
+    },
+    {
+      q: "A detention (a brief stop) is supposed to be short. What can make it turn into something bigger?",
+      options: ["It can become an arrest if police develop probable cause", "It automatically becomes an arrest after five minutes", "It can never become an arrest, it's just a stop", "It becomes an arrest only if you ask to leave"],
+      correct: 0,
+      hint: "A stop and an arrest are different tiers. What has to grow for one to become the other?",
+      optionExplanations: [null, "There's no magic clock. A stop doesn't flip to arrest just because time passed. It's about the level of proof.", "A stop can absolutely lead to an arrest. It's not frozen as 'just a stop' forever.", "Asking to leave doesn't create an arrest. What matters is whether police gain probable cause."],
+      principle: "A detention is meant to be a brief investigative stop on reasonable suspicion. It can turn into an arrest if, during the stop, police develop probable cause: enough facts to reasonably believe you committed a crime. It's the level of proof that changes the tier, not a stopwatch. Knowing this helps you understand the situation, but the safe move stays the same in both: stay calm, comply, and challenge overreach later.",
+      keyPhrase: { quote: "Proof grows, tier changes.", gloss: "A stop becomes an arrest when probable cause appears." },
+      scenario: { setup: "A brief stop is dragging on and getting more serious.", lines: [{ label: "STOP", text: "Reasonable suspicion, brief." }, { label: "BECOMES ARREST", text: "When probable cause develops." }], note: "It's about proof, not a clock. Stay calm through either." }
+    },
+    {
+      q: "You mumble \"maybe I should talk to a lawyer.\" Does that stop the questioning?",
+      options: ["Not reliably; courts have said the request must be clear", "Yes, any mention of a lawyer stops everything", "Yes, but only if you say it twice", "No, asking for a lawyer never stops questioning"],
+      correct: 0,
+      hint: "The switch is being unmistakable. Does 'maybe' leave any doubt?",
+      optionExplanations: [null, "People think any mention counts. Courts (Davis v. US) said an unclear, 'maybe' request may not require police to stop.", "Repeating a vague statement doesn't fix the vagueness. Say it clearly the first time.", "A clear request IS supposed to stop questioning. The problem here is only that 'maybe' isn't clear."],
+      principle: "A request for a lawyer has to be clear and unambiguous to reliably stop questioning. The Supreme Court (Davis v. United States) said police don't have to stop for a wishy-washy 'maybe I should get a lawyer.' So say it plainly: 'I want a lawyer,' then stop talking. This is a place where the exact words matter. A calm, clear statement does the work; a hesitant one may not.",
+      keyPhrase: { quote: "No 'maybe.' Say it plainly.", gloss: "A clear request stops questioning; a vague one may not." },
+      scenario: { setup: "You're unsure how to phrase your request.", lines: [{ label: "TOO VAGUE", text: "\"Maybe I should get a lawyer?\"" }, { label: "CLEAR", text: "\"I want a lawyer.\"" }], note: "Say it plainly, then go quiet. The words matter here." }
+    },
+    {
+      q: "You're recording police in public in Michigan, and it captures their voices. Is the audio a problem?",
+      options: ["Generally no; there's no privacy expectation for police work in public", "Yes, recording anyone's voice is always illegal in Michigan", "Yes, you need each officer to agree to the audio", "Only if you post the audio online"],
+      correct: 0,
+      hint: "Michigan's audio rules turn on a reasonable expectation of privacy. Do officers have that while working in public?",
+      optionExplanations: [null, "People fear Michigan's eavesdropping law bans all audio. But public police work has no reasonable expectation of privacy.", "You don't need each officer's okay. In public, doing public duties, there's no privacy expectation to protect.", "Whether you post it doesn't change the recording's legality. The public setting is what matters."],
+      principle: "Michigan's eavesdropping law protects private conversations, ones where people have a reasonable expectation of privacy. Police doing their public duties in public generally don't have that expectation, so capturing their audio while you lawfully record them is generally fine. This is the clear, safe ground. Recording other people's genuinely private conversations is the risky side, so stick to public officials in public and keep your distance.",
+      keyPhrase: { quote: "Public work, no privacy expectation.", gloss: "Audio of police in public is generally fine in Michigan." },
+      scenario: { setup: "Your video of an arrest picks up the officers talking.", lines: [{ label: "PUBLIC DUTIES", text: "No reasonable expectation of privacy." }, { label: "SO", text: "The audio is generally fine." }], note: "Private conversations are the risky side. Public police work isn't." }
+    },
+    {
+      q: "Police are at your door without a warrant and want to talk. How can stepping outside affect things?",
+      options: ["Stepping out and closing the door can limit what they can access", "Stepping outside lets them search your whole home", "It makes no difference where you stand", "It automatically counts as inviting them in"],
+      correct: 0,
+      hint: "Where the conversation happens can change what's in reach. What does closing the door behind you do?",
+      optionExplanations: [null, "Some fear stepping out opens the house. It's closer to the opposite: closing the door behind you can narrow their access.", "Where you stand does matter. Talking at an open door, or inviting them in, is what risks giving up access.", "Stepping out and closing the door is different from inviting them in. It can actually protect the inside of your home."],
+      principle: "If police are at your door without a warrant, stepping outside and closing the door behind you can narrow what they can access, because you're not exposing or inviting them into the home. Opening the door wide or inviting them in can do the opposite. This is a judgment call, and safety comes first, but understanding it helps you avoid accidentally consenting to entry. When unsure, keeping the door shut and talking through it is simplest.",
+      keyPhrase: { quote: "Close the door behind you.", gloss: "Stepping out can limit access; inviting in gives it up." },
+      scenario: { setup: "You decide to talk to officers at the door.", lines: [{ label: "NARROWS ACCESS", text: "Step out, close the door behind you." }, { label: "RISKS ACCESS", text: "Open the door wide or invite them in." }], note: "When unsure, keep the door shut and talk through it." }
+    },
+    {
+      q: "An officer lawfully stops you and sees something illegal sitting out in the open. What can they do?",
+      options: ["Seize it under the 'plain view' rule, no separate warrant needed", "Nothing, they still need a warrant for anything they see", "Nothing, unless you admit it's yours", "Search your whole house because of it"],
+      correct: 0,
+      hint: "If it's already visible and they're lawfully there, the privacy argument gets weaker. What does that allow?",
+      optionExplanations: [null, "People assume everything needs a warrant. If police are lawfully present and something illegal is in plain view, they can seize it.", "Whether you admit it's yours isn't the test. Plain view is about it being visible while they're lawfully there.", "One item in plain view doesn't unlock a whole-house search. Plain view is about what's actually visible."],
+      principle: "Under the plain view rule, if an officer is lawfully in a spot and sees something obviously illegal sitting out in the open, they can seize it without a separate warrant. The key is that they're lawfully there and the item is actually visible. This is one of the real exceptions to the warrant rule. It's a good reason not to leave things in open view, and a reminder that the warrant rule has limits you should know.",
+      keyPhrase: { quote: "In the open, lawfully seen.", gloss: "Plain view lets police seize visible, obvious contraband." },
+      scenario: { setup: "During a lawful stop, something illegal is sitting in view.", lines: [{ label: "PLAIN VIEW", text: "Lawfully present plus clearly visible." }, { label: "RESULT", text: "They can seize it without a new warrant." }], note: "This is a real exception. What's out in the open isn't private." }
+    },
+    {
+      q: "During a lawful stop, an officer asks to search you 'just to be safe.' Do you have to agree?",
+      options: ["No; you can decline, and the stop alone doesn't authorize a full search", "Yes, a lawful stop means you must allow a search", "Yes, 'to be safe' makes it required", "No, but only if you're completely silent otherwise"],
+      correct: 0,
+      hint: "A lawful stop and a full search are different things. Does one automatically include the other?",
+      optionExplanations: [null, "Big myth: that being lawfully stopped means you must consent to a search. It doesn't. You can decline.", "'To be safe' is persuasion, not law. A stop by itself doesn't require you to allow a full search.", "You don't have to be silent to decline a search. You can calmly say you don't consent regardless."],
+      principle: "A lawful stop does not automatically authorize a full search of you. An officer may do a limited weapons frisk if they reasonably suspect you're armed, but for a full search they generally need consent, probable cause, or another exception. You can calmly decline consent. 'Just to be safe' is a persuasion phrase, not a legal requirement. Say you don't consent, once, and don't physically resist; let a lawyer sort out the rest.",
+      keyPhrase: { quote: "A stop isn't a search.", gloss: "Being stopped doesn't mean you must allow a full search." },
+      scenario: { setup: "You're lawfully stopped and asked to allow a search.", lines: [{ label: "OFFICER", text: "Let me search you, just to be safe." }, { label: "YOU (calm)", text: "I don't consent to a search." }], note: "A frisk for weapons is different. Say your 'no' once, calmly." }
     }
   ],
   expert: []
