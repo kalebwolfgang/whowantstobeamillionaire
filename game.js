@@ -203,8 +203,7 @@ const R = {
     { key: "ladder", type: "ladder", title: "THE LADDER", body: "Each question is worth more than the last. Get all 15 right and you win it all." },
     { key: "questions", type: "questions", title: "THE QUESTIONS", body: "Four choices per question. Pick one, lock it in. Miss one and the game ends." },
     { key: "cards", type: "cards", title: "REVIEW CARDS", body: "After you answer, you find out if you were right, then three cards flip up one at a time: the law behind it, a phrase to remember, and how it plays out in real life. Take a few seconds with each one." },
-    { key: "points", type: "points", title: "POINTS", body: "Each review card you read earns a point. Read all three and you get a bonus point. Points let you buy back lifelines when you run out, so reading pays off." },
-    { key: "puzzle", type: "puzzle", title: "THE PUZZLE", body: "Every question you get right builds one puzzle piece, one slice per card you read. Complete all fifteen pieces and you finish the whole picture." },
+    { key: "points", type: "points", title: "POINTS", body: "Each review card you read earns a point, up to three per question. Points let you buy back lifelines after you have used them, so reading pays off when you get stuck later." },
     { key: "fifty", type: "lifeline", lifelineKey: "fifty", title: "50/50", body: "Two of the wrong answers get crossed off, leaving you with the correct one and one other choice. Best when you can narrow it down to two guesses." },
     { key: "jury", type: "lifeline", lifelineKey: "poll", title: "JURY", body: "A panel of other students voted on this question. You see what percentage picked each answer. The crowd is usually right, but not always. Trust it more when the top answer is way ahead." },
     { key: "counsel", type: "lifeline", lifelineKey: "hint", title: "COUNSEL", body: "A lawyer gives you a hint about the question. It won't give away the answer, but it will point you in the right direction. Save this one for when you're truly stuck." },
@@ -259,7 +258,7 @@ const he = [
 ];
 
 const Yc = ["easy", "easy", "easy", "easy", "easy", "medium", "medium", "medium", "medium", "medium", "hard", "hard", "hard", "hard", "hard"];
-const La = { hint: 8, poll: 14, fifty: 22 };
+const La = { hint: 6, poll: 10, fifty: 16 };
 const Oa = (e) => e < 5 ? 1 : e < 10 ? 2 : 3;
 
 const u = {
@@ -927,8 +926,6 @@ function App() {
   const [skipConfirm, setSkipConfirm] = useState(false);
   const [skipConfirmed, setSkipConfirmed] = useState(false);
   const [points, setPoints] = useState(0);
-  const [puzzlePieces, setPuzzlePieces] = useState(() => Array(15).fill(null).map(() => ({ segments: 0, complete: false })));
-  const [showPuzzle, setShowPuzzle] = useState(false);
   const [isEndless, setIsEndless] = useState(false);
   const [finalPrize, setFinalPrize] = useState(0);
   const [bestRun, setBestRun] = useState(0);
@@ -994,8 +991,7 @@ function App() {
     setStreak(0); setLifelines({ fifty: true, poll: true, hint: true });
     setRemovedAnswers([]); setJuryResults(null); setHintShown(false);
     setPendingLifeline(null); setHomeConfirm(false); setSkipConfirm(false);
-    setPoints(0); setPuzzlePieces(Array(15).fill(null).map(() => ({ segments: 0, complete: false })));
-    setShowPuzzle(false); setIsEndless(false); setFinalPrize(0);
+    setPoints(0); setIsEndless(false); setFinalPrize(0);
   };
 
   const goWalkthrough = () => { initAudio(); sfx.current.click(); setWalkStep(0); setPhase("walkthrough"); };
@@ -1071,8 +1067,8 @@ function App() {
     if (!isEndless && level === he.length - 1) {
       setFinalPrize(he[level].prize);
       setBestRun((v) => Math.max(v, he[level].prize));
-      setPhase("winassembly");
-      music.current.duck(0.15, 400);
+      setPhase("winbig");
+      music.current.duck(0.12, 400);
       return;
     }
     const next = level + 1;
@@ -1124,28 +1120,10 @@ function App() {
     }
   };
 
-  // ---- puzzle / points earned from flipping review cards ----
-  const earnCardPoint = (lvl, seg) => {
+  // ---- points earned from reading review cards (one per card, max 3 per question) ----
+  const earnCardPoint = (seg) => {
     setPoints((p) => p + 1);
     sfx.current.cardPointEarn(seg);
-    // segment clink slightly after the point blip to feel like a landing
-    setTimeout(() => sfx.current.segmentClink(seg), 130);
-    setPuzzlePieces((prev) => {
-      const copy = prev.slice();
-      const piece = copy[lvl] || { segments: 0, complete: false };
-      if (piece.segments < 3) {
-        const segs = piece.segments + 1;
-        const complete = segs === 3 ? true : piece.complete;
-        copy[lvl] = { segments: segs, complete };
-      }
-      return copy;
-    });
-  };
-
-  const earnCompletionBonus = () => {
-    setPoints((p) => p + 1);
-    sfx.current.pieceComplete();
-    setTimeout(() => sfx.current.pieceLock(), 520);
   };
 
   const openSkipConfirm = () => {
@@ -1156,18 +1134,17 @@ function App() {
   const cancelSkip = () => { sfx.current.click(); setSkipConfirm(false); };
   const doSkip = () => { sfx.current.click(); setSkipConfirm(false); setSkipConfirmed(true); advance(); };
 
-  const finishAssembly = () => {
-    setPhase("won");
-    setTimeout(() => music.current.stop(), 150);
-  };
-
   const askHome = () => {
-    if (phase === "start" || phase === "gameover" || phase === "won" || phase === "winassembly") return;
+    if (phase === "start" || phase === "gameover" || phase === "won" || phase === "winbig") return;
     sfx.current.modalOpen();
     setHomeConfirm(true);
   };
   const cancelHome = () => { sfx.current.click(); setHomeConfirm(false); };
   const confirmHome = () => { sfx.current.click(); setHomeConfirm(false); music.current.stop(); resetState(); setPhase("start"); };
+
+  // after the big win celebration: take the money (end) or keep going (bonus round)
+  const winTakeMoney = () => { sfx.current.click(); music.current.stop(); setPhase("won"); };
+  const winKeepGoing = () => { sfx.current.click(); enterEndless(); };
 
   const walkNext = () => { sfx.current.click(); if (walkStep < R.walkthrough.length - 1) setWalkStep(walkStep + 1); else startGame(); };
   const walkSkip = () => { sfx.current.click(); startGame(); };
@@ -1178,9 +1155,9 @@ function App() {
   if (phase === "walkthrough")
     return c.jsx(Shell, { muted, setMuted, children: c.jsx(WalkScreen, { step: walkStep, total: R.walkthrough.length, screen: R.walkthrough[walkStep], onNext: walkNext, onSkip: walkSkip, isLast: walkStep === R.walkthrough.length - 1 }) });
 
-  if (phase === "winassembly")
-    return c.jsx(Shell, { muted, setMuted, hideSoundButton: true, children: c.jsx(WinAssemblyScreen, {
-      pieces: puzzlePieces, prize: he[he.length - 1].prize, sfx: sfx.current, onDone: finishAssembly
+  if (phase === "winbig")
+    return c.jsx(Shell, { muted, setMuted, hideSoundButton: true, children: c.jsx(WinBigScreen, {
+      prize: he[he.length - 1].prize, sfx: sfx.current, onTakeMoney: winTakeMoney, onKeepGoing: winKeepGoing
     }) });
 
   if (phase === "gameover" || phase === "won") {
@@ -1196,17 +1173,15 @@ function App() {
     return c.jsxs(Shell, { muted, setMuted, screenFlash, screenShake, hideSoundButton: true, children: [
       c.jsx(RevealScreen, {
         question: currentQ, level, isEndless, streak, rung,
-        revealCorrect, selectedIdx: selected, muted, setMuted, points, puzzlePieces,
+        revealCorrect, selectedIdx: selected, muted, setMuted, points,
         onNext: advance, onEnterEndless: enterEndless, onHome: askHome,
-        onEarnCardPoint: (seg) => earnCardPoint(level, seg),
-        onEarnCompletionBonus: earnCompletionBonus,
+        onEarnCardPoint: (seg) => earnCardPoint(seg),
         onFlipSound: () => sfx.current.cardFlip(),
         onRevisitSound: () => sfx.current.cardRevisit(),
-        onSkipReview: openSkipConfirm, onOpenPuzzle: () => setShowPuzzle(true)
+        onSkipReview: openSkipConfirm
       }),
       homeConfirm && c.jsx(ConfirmModal, { title: R.homeConfirm.title, body: R.homeConfirm.body, primaryLabel: R.homeConfirm.leaveLabel, secondaryLabel: R.homeConfirm.stayLabel, primaryVariant: "danger", onPrimary: confirmHome, onSecondary: cancelHome }),
-      skipConfirm && c.jsx(ConfirmModal, { title: "Skip the review?", body: "You'll miss the points and won't build your puzzle piece for this question.", primaryLabel: "Skip anyway", secondaryLabel: "Keep learning", primaryVariant: "danger", onPrimary: doSkip, onSecondary: cancelSkip }),
-      showPuzzle && c.jsx(PuzzleModal, { pieces: puzzlePieces, onClose: () => setShowPuzzle(false) })
+      skipConfirm && c.jsx(ConfirmModal, { title: "Skip the review?", body: "You'll miss the points from reading these cards.", primaryLabel: "Skip anyway", secondaryLabel: "Keep learning", primaryVariant: "danger", onPrimary: doSkip, onSecondary: cancelSkip })
     ] });
   }
 
@@ -1215,9 +1190,9 @@ function App() {
     c.jsx(QuestionScreen, {
       question: currentQ, level, rung, difficulty, stage, streak, selectedIdx: selected,
       locked, revealCorrect, revealWrong, showFloating, phase, removedAnswers, juryResults,
-      hintShown, lifelines, muted, setMuted, isEndless, points, puzzlePieces,
+      hintShown, lifelines, muted, setMuted, isEndless, points,
       onSelect, onLockIn, onNext: advance, onHome: askHome, onRequestLifeline: requestLifeline,
-      onEnterEndless: enterEndless, onOpenPuzzle: () => setShowPuzzle(true)
+      onEnterEndless: enterEndless
     }),
     pendingLifeline && c.jsx(LifelineModal, {
       lifelineKey: pendingLifeline,
@@ -1225,7 +1200,6 @@ function App() {
       available: lifelines[pendingLifeline], points, price: La[pendingLifeline],
       onConfirm: confirmLifeline, onCancel: cancelLifeline
     }),
-    showPuzzle && c.jsx(PuzzleModal, { pieces: puzzlePieces, onClose: () => setShowPuzzle(false) }),
     homeConfirm && c.jsx(ConfirmModal, { title: R.homeConfirm.title, body: R.homeConfirm.body, primaryLabel: R.homeConfirm.leaveLabel, secondaryLabel: R.homeConfirm.stayLabel, primaryVariant: "accent", onPrimary: confirmHome, onSecondary: cancelHome })
   ] });
 }
@@ -1326,13 +1300,9 @@ function WalkArt({ screen }) {
     return c.jsx("div", { style: { display: "flex", gap: 8, perspective: 600 }, children: R.cardMeta.map((m, i) => c.jsx("div", { style: { width: 58, height: 78, background: i === 0 ? u.surfaceHigh : u.cardBack, border: `2px solid ${u.outline}`, borderRadius: 7, boxShadow: U.sm, display: "flex", alignItems: "center", justifyContent: "center", transform: `rotateY(${i === 0 ? 0 : -22}deg)`, color: i === 0 ? u.brand : u.brandSoft, fontFamily: C.display, fontSize: 20 }, children: i === 0 ? m.icon : "?" }, i)) });
   if (screen.type === "points")
     return c.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 14 }, children: [
-      c.jsx("div", { style: { display: "flex", gap: 5 }, children: [0, 1, 2].map((n) => c.jsx("div", { style: { width: 14, height: 14, borderRadius: "50%", background: n < 2 ? u.brand : u.borderLight, border: `2px solid ${u.outline}` } }, n)) }),
-      c.jsx("div", { style: { fontFamily: C.display, fontSize: 40, color: u.brand }, children: "+1" })
+      c.jsx("div", { style: { display: "flex", gap: 5 }, children: [0, 1, 2].map((n) => c.jsx("div", { style: { width: 16, height: 16, borderRadius: "50%", background: u.brand, border: `2px solid ${u.outline}` } }, n)) }),
+      c.jsx("div", { style: { fontFamily: C.display, fontSize: 34, color: u.brand }, children: "3 PTS" })
     ] });
-  if (screen.type === "puzzle") {
-    const demo = [3, 3, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-    return c.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 4, background: u.surfaceWarm, border: `2px solid ${u.outline}`, borderRadius: 6, padding: 6, boxShadow: U.md }, children: demo.map((segs, i) => c.jsx("div", { style: { position: "relative", width: 34, height: 22, background: u.surface, border: `1.5px solid ${u.outline}`, borderRadius: 3, overflow: "hidden" }, children: [0, 1, 2].map((s) => c.jsx("div", { style: { position: "absolute", left: `${(s * 100) / 3}%`, top: 0, width: `${100 / 3}%`, height: "100%", background: s < segs ? u.brand : "transparent", borderRight: s < 2 ? `1px solid ${u.borderLight}` : "none" } }, s)) }, i)) });
-  }
   if (screen.type === "lifeline") {
     const t = R.lifelines[screen.lifelineKey];
     return c.jsx("div", { style: { background: u.surface, border: `2px solid ${u.outline}`, padding: "14px 26px", borderRadius: 26, fontFamily: C.display, fontSize: 22, letterSpacing: 2, color: u.brand, boxShadow: U.md }, children: t.label });
@@ -1388,8 +1358,8 @@ function LifelineModal({ lifelineKey, remainingAfter, available, points, price, 
 function QuestionScreen(props) {
   const { question, level, rung, difficulty, stage, streak, selectedIdx, locked, revealCorrect,
     revealWrong, showFloating, phase, removedAnswers, juryResults, hintShown, lifelines, muted,
-    setMuted, isEndless, points, puzzlePieces, onSelect, onLockIn, onNext, onHome, onRequestLifeline,
-    onEnterEndless, onOpenPuzzle } = props;
+    setMuted, isEndless, points, onSelect, onLockIn, onNext, onHome, onRequestLifeline,
+    onEnterEndless } = props;
   const bonusStreak = isEndless ? Math.max(0, streak - 15) : 0;
   return c.jsxs("div", {
     style: { maxWidth: 1280, margin: "0 auto", padding: "24px 24px 24px", display: "flex", gap: 28, alignItems: "flex-start", minHeight: "100vh", boxSizing: "border-box" },
@@ -1403,10 +1373,10 @@ function QuestionScreen(props) {
               c.jsx("div", { style: { fontFamily: C.mono, fontSize: 10, letterSpacing: 2, color: u.textMuted, marginBottom: 4, fontWeight: 700, textTransform: "uppercase" }, children: "Streak" }),
               c.jsx("div", { style: { fontFamily: C.display, fontSize: 22, letterSpacing: 0, color: streak > 0 ? u.terra : u.textMuted, lineHeight: 1, animation: streak > 0 ? "ts-streak-pop 0.5s ease-out" : "none" }, children: streak }, "streak-" + streak)
             ] }),
-            c.jsxs("button", { onClick: onOpenPuzzle, style: { background: "transparent", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, padding: 0 }, title: "View puzzle", children: [
+            c.jsxs("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }, children: [
               c.jsx("div", { style: { fontFamily: C.mono, fontSize: 10, letterSpacing: 2, color: u.textMuted, fontWeight: 700, textTransform: "uppercase" }, children: "Points" }),
               c.jsx("div", { style: { fontFamily: C.display, fontSize: 22, letterSpacing: 0, color: u.brand, lineHeight: 1 }, children: points }),
-              puzzlePieces && c.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 1.5, marginTop: 4 }, children: puzzlePieces.map((p, i) => c.jsx("div", { style: { width: 6, height: 6, borderRadius: 1, background: p.complete ? u.brand : p.segments > 0 ? u.brandSofter : u.borderLight, border: i === level ? `1px solid ${u.terra}` : "none" } }, i)) })
+              c.jsx("div", { style: { fontFamily: C.mono, fontSize: 8, letterSpacing: 1, color: u.textMuted, fontWeight: 700 }, children: "SPEND ON LIFELINES" })
             ] }),
             c.jsxs("div", { style: { textAlign: "right" }, children: [
               c.jsx("div", { style: { fontFamily: C.mono, fontSize: 10, letterSpacing: 2, color: u.textMuted, fontWeight: 700, textTransform: "uppercase", marginBottom: 4 }, children: "Worth" }),
@@ -1545,8 +1515,8 @@ function Confetti({ intensity = "med" }) {
 
 function RevealScreen(props) {
   const { question, level, isEndless, streak, rung, revealCorrect, selectedIdx, muted, setMuted,
-    points, puzzlePieces, onNext, onEnterEndless, onHome, onEarnCardPoint, onEarnCompletionBonus,
-    onFlipSound, onRevisitSound, onSkipReview, onOpenPuzzle } = props;
+    points, onNext, onEnterEndless, onHome, onEarnCardPoint,
+    onFlipSound, onRevisitSound, onSkipReview } = props;
 
   // sub-flow: first the verdict beat, then the learning cards
   const [step, setStep] = useState("verdict"); // "verdict" | "cards"
@@ -1554,15 +1524,12 @@ function RevealScreen(props) {
   const [seen, setSeen] = useState([false, false, false]);
   const [dir, setDir] = useState(1);
   const [firstView, setFirstView] = useState(true);
-  const [bonusFired, setBonusFired] = useState(false);
-  const [tokenFly, setTokenFly] = useState(null);
   const [dwellDone, setDwellDone] = useState(false); // has the current card met its read-time gate
   const dwellTimer = useRef(null);
 
   const CARD_COUNT = R.cardMeta.length; // 3
   const DWELL_MS = 2000;
-  const scoring = revealCorrect; // only correct answers earn points / build the puzzle
-  const piece = puzzlePieces[level] || { segments: 0, complete: false };
+  const scoring = revealCorrect; // only correct answers earn points
   const isQ15Win = revealCorrect && level === he.length - 1 && !isEndless;
   const bonusStreak = isEndless ? Math.max(0, streak - 15) : 0;
 
@@ -1580,15 +1547,7 @@ function RevealScreen(props) {
       const copy = prev.slice();
       copy[idx] = true;
       const seenCount = copy.filter(Boolean).length;
-      if (scoring) {
-        onEarnCardPoint(seenCount - 1);
-        setTokenFly({ seg: seenCount - 1, id: Date.now() });
-        setTimeout(() => setTokenFly(null), 950);
-        if (seenCount === CARD_COUNT && !bonusFired) {
-          setBonusFired(true);
-          setTimeout(() => onEarnCompletionBonus(), 500);
-        }
-      }
+      if (scoring) onEarnCardPoint(seenCount - 1);
       return copy;
     });
   };
@@ -1685,15 +1644,11 @@ function RevealScreen(props) {
       c.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexShrink: 0, marginBottom: 8 }, children: [
         c.jsx(Button, { onClick: onHome, variant: "secondary", size: "sm", style: { fontSize: 12 }, children: R.homeButton }),
         c.jsxs("div", { style: { flex: 1, display: "flex", justifyContent: "center", alignItems: "center", gap: 14, flexWrap: "wrap" }, children: [
-          scoring && c.jsx(PointsMeter, { points, pieceProgress: piece.segments }),
-          !scoring && c.jsx("div", { style: { fontFamily: C.mono, fontSize: 11, letterSpacing: 1.5, color: u.terra, fontWeight: 700, textTransform: "uppercase" }, children: "Review \u00B7 no points on a miss" }),
-          c.jsx("button", { onClick: onOpenPuzzle, style: { background: "transparent", border: "none", cursor: "pointer", padding: 4, display: "flex", alignItems: "center", gap: 6 }, children: c.jsx(MiniMural, { pieces: puzzlePieces, currentLevel: level }) })
+          scoring && c.jsx(PointsMeter, { points, earnedThisQuestion: seen.filter(Boolean).length }),
+          !scoring && c.jsx("div", { style: { fontFamily: C.mono, fontSize: 11, letterSpacing: 1.5, color: u.terra, fontWeight: 700, textTransform: "uppercase" }, children: "Review \u00B7 no points on a miss" })
         ] }),
         c.jsx("button", { onClick: () => setMuted((m) => !m), "aria-label": muted ? "Unmute" : "Mute", className: "ts-sound-btn", style: { background: muted ? "transparent" : u.surface, border: `2px solid ${u.outline}`, color: muted ? u.textMuted : u.text, padding: "6px 10px", borderRadius: 6, cursor: "pointer", fontFamily: C.mono, fontSize: 10, letterSpacing: 1.5, fontWeight: 700 }, children: muted ? "OFF" : "ON" })
       ] }),
-
-      // puzzle-piece build indicator (only when scoring) - this is the fly-to target
-      scoring && c.jsx("div", { style: { flexShrink: 0, display: "flex", justifyContent: "center", marginBottom: 8, position: "relative" }, children: c.jsx(PieceBuild, { segments: piece.segments, complete: piece.complete, tokenFly }) }),
 
       // the single comic card
       c.jsx("div", { style: { flex: 1, minHeight: 0, display: "flex", flexDirection: "column", maxWidth: 760, margin: "0 auto", width: "100%" }, children: c.jsx(ComicCard, {
@@ -1736,48 +1691,13 @@ function NextCardButton({ canAdvance, onClick, label }) {
   });
 }
 
-function PointsMeter({ points, pieceProgress }) {
+function PointsMeter({ points, earnedThisQuestion = 0 }) {
   return c.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 8, background: u.surfaceWarm, border: `2px solid ${u.outline}`, borderRadius: 20, padding: "5px 14px 5px 8px", boxShadow: U.sm }, children: [
-    c.jsx("div", { style: { display: "flex", gap: 3 }, children: [0, 1, 2].map((r) => c.jsx("div", { style: { width: 8, height: 8, borderRadius: "50%", background: r < pieceProgress ? u.brand : u.borderLight, border: `1px solid ${u.outline}`, transition: "background 0.3s" } }, r)) }),
+    c.jsx("div", { style: { display: "flex", gap: 3 }, children: [0, 1, 2].map((r) => c.jsx("div", { style: { width: 8, height: 8, borderRadius: "50%", background: r < earnedThisQuestion ? u.brand : u.borderLight, border: `1px solid ${u.outline}`, transition: "background 0.3s" } }, r)) }),
     c.jsxs("div", { style: { fontFamily: C.display, fontSize: 16, color: u.text, letterSpacing: 0, lineHeight: 1 }, children: [points, " ", c.jsx("span", { style: { fontFamily: C.mono, fontSize: 9, letterSpacing: 2, color: u.textMuted, fontWeight: 700 }, children: "PTS" })] })
   ] });
 }
 
-function MiniMural({ pieces, currentLevel }) {
-  const done = pieces.filter((p) => p.complete).length;
-  return c.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }, children: [
-    c.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 2, background: u.surfaceWarm, border: `2px solid ${u.outline}`, borderRadius: 4, padding: 3 }, children: pieces.map((n, r) => {
-      const cur = r === currentLevel;
-      return c.jsx("div", { style: { width: 9, height: 9, borderRadius: 1, background: n.complete ? u.brand : n.segments > 0 ? u.brandSofter : u.borderLight, border: cur ? `1px solid ${u.terra}` : "none", boxShadow: cur ? `0 0 4px ${u.terra}` : "none", transition: "background 0.3s" } }, r);
-    }) }),
-    c.jsxs("div", { style: { fontFamily: C.mono, fontSize: 10, fontWeight: 700, color: u.textMuted, letterSpacing: 1 }, children: [done, "/15"] })
-  ] });
-}
-
-// A puzzle piece drawn as a small picture filling in three vertical slices.
-function PieceBuild({ segments, complete, tokenFly }) {
-  const W = 118, H = 74;
-  const sliceW = W / 3;
-  return c.jsxs("div", { style: { display: "flex", alignItems: "center", gap: 14, position: "relative" }, children: [
-    c.jsxs("div", { style: { position: "relative", width: W, height: H, background: u.surface, border: `3px solid ${u.outline}`, borderRadius: 8, overflow: "hidden", boxShadow: complete ? `0 0 16px ${u.brand}` : U.md, animation: complete ? "ts-piece-celebrate 0.9s ease-out" : "none", transition: "box-shadow 0.5s" }, children: [
-      [0, 1, 2].map((s) => {
-        const filled = s < segments;
-        const justFilled = filled && s === segments - 1;
-        return c.jsxs("div", { style: { position: "absolute", left: s * sliceW, top: 0, width: sliceW, height: "100%", borderRight: s < 2 ? `2px solid ${u.outline}` : "none", overflow: "hidden" }, children: [
-          c.jsx("div", { style: { position: "absolute", inset: 0, background: filled ? u.brand : "transparent", transformOrigin: "bottom center", animation: justFilled ? "ts-segment-slam 0.5s cubic-bezier(.2,.9,.2,1.5)" : "none", transition: "background 0.3s" } }),
-          justFilled && c.jsx("div", { "aria-hidden": true, style: { position: "absolute", left: "50%", top: "50%", width: 30, height: 30, marginLeft: -15, marginTop: -15, borderRadius: "50%", border: `3px solid ${u.brandBright}`, animation: "ts-piece-shockwave 0.6s ease-out forwards" } })
-        ] }, s);
-      }),
-      // a faint icon hint of "a picture" so empty pieces read as unfinished art
-      segments < 3 && c.jsx("div", { "aria-hidden": true, style: { position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: C.display, fontSize: 26, color: u.borderLight, pointerEvents: "none" }, children: "\u2696" })
-    ] }),
-    c.jsx("div", { style: { fontFamily: C.mono, fontSize: 11, letterSpacing: 1.5, color: u.textMuted, textTransform: "uppercase", fontWeight: 700, minWidth: 96 }, children: complete
-      ? c.jsx("span", { style: { color: u.brand }, children: "Piece complete!" })
-      : c.jsxs(c.Fragment, { children: ["Building piece", c.jsx("br", {}), c.jsxs("span", { style: { color: u.text, fontSize: 13 }, children: [segments, " / 3 slices"] })] }) }),
-    // the big +1 token that arcs up onto the piece
-    tokenFly && c.jsx("div", { "aria-hidden": true, style: { position: "absolute", left: W / 2, top: "50%", transform: "translate(-50%, -50%)", fontFamily: C.display, fontSize: 34, color: u.terra, textShadow: `3px 3px 0 ${u.outline}`, animation: "ts-bigtoken-fallback 0.95s cubic-bezier(.3,.7,.4,1) forwards", pointerEvents: "none", zIndex: 5 }, children: "+1" })
-  ] });
-}
 // ---------- the single comic card, four faces ----------
 function ComicCard({ cardIndex, meta, dir, firstView, question, revealCorrect, selectedIdx, rightLetter }) {
   // outer animation: flip on first view, slide on revisit
@@ -1863,56 +1783,48 @@ function FaceRealLife({ question }) {
   ] });
 }
 
-// A single mural tile drawn as three vertical slices (matches PieceBuild).
-function PieceGlyph({ segments, complete, style, animate }) {
-  return c.jsx("div", { style: { position: "relative", aspectRatio: "1.55", background: u.surface, border: `2px solid ${u.outline}`, borderRadius: 4, overflow: "hidden", boxShadow: complete ? `0 0 8px ${u.brand}` : "none", ...style }, children:
-    [0, 1, 2].map((s) => c.jsx("div", { style: { position: "absolute", left: `${(s * 100) / 3}%`, top: 0, width: `${100 / 3}%`, height: "100%", background: s < segments ? u.brand : "transparent", borderRight: s < 2 ? `1px solid ${u.borderLight}` : "none" } }, s))
-  });
-}
-
-function PuzzleModal({ pieces, onClose }) {
-  const complete = pieces.filter((p) => p.complete).length;
-  return c.jsx(Backdrop, { children: c.jsxs("div", {
-    style: { background: u.surfaceHigh, border: `2px solid ${u.outline}`, borderRadius: 14, boxShadow: U.lg, padding: "26px 28px 24px", maxWidth: 440, width: "100%", animation: "ts-modal-in 0.18s ease-out" },
-    children: [
-      c.jsx("h3", { style: { fontFamily: C.display, fontSize: 26, margin: "0 0 4px", color: u.text }, children: "YOUR PICTURE" }),
-      c.jsxs("p", { style: { fontFamily: C.mono, fontSize: 11, letterSpacing: 1.5, color: u.textMuted, fontWeight: 700, textTransform: "uppercase", margin: "0 0 18px" }, children: [complete, " of 15 pieces complete"] }),
-      c.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 6, background: u.surfaceWarm, border: `2px solid ${u.outline}`, borderRadius: 8, padding: 10, marginBottom: 20 }, children: pieces.map((p, i) => c.jsx(PieceGlyph, { segments: p.segments, complete: p.complete }, i)) }),
-      c.jsx("div", { style: { display: "flex", justifyContent: "flex-end" }, children: c.jsx(Button, { onClick: onClose, variant: "primary", size: "sm", style: { fontSize: 14 }, children: "Close" }) })
-    ]
-  }) });
-}
-
-// End-of-game payoff: the 15 completed pieces drop into the finished mural one by one.
-function WinAssemblyScreen({ pieces, prize, sfx, onDone }) {
-  const [placed, setPlaced] = useState(0);   // how many tiles have dropped in
-  const [finished, setFinished] = useState(false);
+// The big win moment. Fires on 15/15 regardless of what the player does next.
+// A prize count rolls up to the full amount, then take-the-money / keep-going appear.
+function WinBigScreen({ prize, sfx, onTakeMoney, onKeepGoing }) {
+  const [display, setDisplay] = useState(0);
+  const [done, setDone] = useState(false);
   const timers = useRef([]);
 
   useEffect(() => {
-    const step = 150; // ms between tiles
-    for (let i = 0; i < 15; i++) {
+    if (sfx) sfx.win();
+    const steps = 42;
+    const dur = 2200;
+    for (let i = 1; i <= steps; i++) {
       timers.current.push(setTimeout(() => {
-        setPlaced(i + 1);
-        if (sfx) { i === 14 ? sfx.finalPuzzle() : sfx.segmentClink(i % 3); }
-      }, 400 + i * step));
+        // ease-out count so it decelerates into the final number
+        const t = i / steps;
+        const eased = 1 - Math.pow(1 - t, 3);
+        setDisplay(Math.round(eased * prize));
+        if (i % 6 === 0 && sfx) sfx.tone(880 + i * 12, 0.08, "sine", 0.05);
+        if (i === steps) {
+          setDisplay(prize);
+          setDone(true);
+          if (sfx) { sfx.win(); setTimeout(() => sfx.correct(3), 250); }
+        }
+      }, Math.round((i / steps) * dur)));
     }
-    timers.current.push(setTimeout(() => { setFinished(true); if (sfx) sfx.pieceComplete(); }, 400 + 15 * step + 300));
     return () => timers.current.forEach(clearTimeout);
   }, []); // eslint-disable-line
 
   return c.jsxs("div", {
-    style: { minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 24px", textAlign: "center", gap: 26 },
+    style: { minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 24px", textAlign: "center", gap: 20, position: "relative" },
     children: [
-      c.jsx("div", { style: { fontFamily: C.mono, fontSize: 12, letterSpacing: 3, color: u.textMuted, fontWeight: 700, textTransform: "uppercase", animation: "ts-fade-in 0.5s" }, children: finished ? "The picture is complete" : "Putting it all together\u2026" }),
-      c.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8, background: u.surfaceWarm, border: `3px solid ${u.outline}`, borderRadius: 12, padding: 14, maxWidth: 560, width: "100%", boxShadow: U.lg, animation: finished ? "ts-mural-finish-glow 1.2s ease-in-out infinite" : "none" }, children:
-        pieces.map((p, i) => c.jsx("div", { style: { opacity: i < placed ? 1 : 0, animation: i < placed ? "ts-tile-drop 0.5s cubic-bezier(.2,.8,.2,1.3) both" : "none" }, children: c.jsx(PieceGlyph, { segments: 3, complete: true }) }, i))
-      }),
-      finished && c.jsxs("div", { style: { animation: "ts-verdict-detail-in 0.5s ease-out both", display: "flex", flexDirection: "column", alignItems: "center", gap: 18 }, children: [
-        c.jsx("div", { style: { fontFamily: C.display, fontSize: "clamp(30px, 6vw, 52px)", color: u.brand, letterSpacing: 1, textShadow: `4px 4px 0 ${u.outline}` }, children: "FIFTEEN FOR FIFTEEN" }),
-        c.jsx(Button, { onClick: onDone, variant: "primary", size: "lg", children: "See your prize \u2192" })
-      ] }),
-      finished && c.jsx(Confetti, { intensity: "high" })
+      c.jsx(Confetti, { intensity: "high" }),
+      c.jsx("div", { style: { fontFamily: C.mono, fontSize: 13, letterSpacing: 4, color: u.brandDeep, fontWeight: 700, textTransform: "uppercase", animation: "ts-fade-in 0.5s" }, children: "You answered all fifteen" }),
+      c.jsx("h1", { style: { fontFamily: C.display, fontSize: "clamp(52px, 12vw, 128px)", lineHeight: 0.85, letterSpacing: "-0.02em", margin: 0, color: u.brand, textShadow: `6px 6px 0 ${u.outline}`, animation: "ts-verdict-stamp 0.7s cubic-bezier(.2,.8,.2,1.4) both" }, children: "YOU WON" }),
+      c.jsx("div", { style: { fontFamily: C.display, fontSize: "clamp(44px, 10vw, 96px)", color: u.text, letterSpacing: "-0.02em", lineHeight: 1, textShadow: `4px 4px 0 ${u.mustard}`, animation: done ? "ts-streak-pop 0.5s ease-out" : "none" }, children: Po(display) }, "amt-" + done),
+      done && c.jsxs("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: 16, animation: "ts-verdict-detail-in 0.5s ease-out both", marginTop: 8 }, children: [
+        c.jsx("p", { style: { fontFamily: C.body, fontSize: 16, fontWeight: 600, color: u.textDim, margin: 0, maxWidth: 440, lineHeight: 1.5 }, children: "That is a perfect run. Take the win, or keep going into the bonus round for the fun of it." }),
+        c.jsxs("div", { className: "ts-end-actions", style: { display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap", justifyContent: "center" }, children: [
+          c.jsx(Button, { onClick: onTakeMoney, variant: "primary", size: "md", children: R.q15Choice.takePrize }),
+          c.jsx(Button, { onClick: onKeepGoing, variant: "secondary", size: "md", children: R.q15Choice.keepGoing })
+        ] })
+      ] })
     ]
   });
 }
